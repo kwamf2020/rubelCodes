@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KWA Water Tariff Calculator - PH Division Thiruvalla</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KWA Water Tariff Calculator</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,19 +23,18 @@
     .pt{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:1.15rem;line-height:1.15;color:var(--ink);font-style:normal;}
 
     .sheet{background:var(--paper);border-radius:6px;border-top:6px solid var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .sh-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem 1rem .5rem;background:var(--paper);border-bottom:2px double var(--ink)}
     
     input, select, textarea{width:100%;background:transparent;border:0;border-bottom:1.5px solid var(--ink2);border-radius:0;padding:.3rem .1rem;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;color:var(--ink);box-shadow:none;font-style:normal;}
     input:focus, select:focus, textarea:focus{outline:0;border-bottom:2px solid var(--stamp);background:linear-gradient(transparent 68%,rgba(255,226,124,.65) 68%);box-shadow:none}
-    label{display:block;font-family:Arial, Helvetica, sans-serif;font-size:1rem;font-weight:700;line-height:1.1;color:var(--ink2);font-style:normal;}
+    label{display:block;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;font-weight:700;line-height:1.1;color:var(--ink2);font-style:normal;}
 
     .seg{background:#e9e7da;padding:2px;border-radius:4px;border:1px solid #d6d1bb}
     .seg>button{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:0.8rem;cursor:pointer;color:var(--ink2);background:transparent;padding:.35rem .2rem;border-radius:3px;font-style:normal;}
     .seg>button.bg-blue-600{background:var(--ink);color:#f8f1d6}
 
     .metrics{background:#fff7cf;border:1px dashed var(--ink2);border-radius:4px;padding:.4rem;text-align:center}
-    .metrics .k{display:block;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;font-weight:700;color:var(--ink2);font-style:normal;}
-    .metrics .v{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:1rem;color:var(--ink);font-style:normal;}
+    .metrics .k{display:block;font-family:Arial, Helvetica, sans-serif;font-size:0.85rem;font-weight:700;color:var(--ink2);font-style:normal;}
+    .metrics .v{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:0.95rem;color:var(--ink);font-style:normal;}
 
     .statement{background:#fffef9;border:3px double var(--ink);padding:.8rem}
     .statement h4{font-family:Arial, Helvetica, sans-serif;font-weight:700;color:var(--ink);letter-spacing:.04em;font-size:0.85rem;font-style:normal;}
@@ -55,21 +54,21 @@
     }
 
     .total{background:var(--ink);color:#f8f1d6;padding:.5rem .8rem;border-radius:4px}
-    .total .hand{color:#f5dc92;font-size:1.1rem;font-style:normal;font-weight:600;}
-    .total .amt{font-family:Arial, Helvetica, sans-serif;font-size:1.7rem;font-weight:700;line-height:1;color:#f5dc92;font-style:normal;}
+    .total .hand{color:#f5dc92;font-size:1rem;font-style:normal;font-weight:600;}
+    .total .amt{font-family:Arial, Helvetica, sans-serif;font-size:1.5rem;font-weight:700;line-height:1;color:#f5dc92;font-style:normal;}
   </style>
 </head>
 
-<body class="min-h-screen flex flex-col p-2">
+<body class="min-h-screen flex flex-col p-2 bg-slate-100">
 
-  <main class="flex-1 max-w-7xl w-full mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+  <main class="flex-1 max-w-7xl w-full mx-auto space-y-3">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
       
       <!-- LEFT PANEL: INPUT CONTROLS -->
-      <section class="lg:col-span-5 sheet p-3.5 space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
+      <section class="lg:col-span-5 sheet p-3 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
           <div>
-            <label class="text-amber-950">Category *</label>
+            <label class="text-amber-950 text-xs">Category *</label>
             <select id="calcCategory" onchange="toggleInputs(); runCalculation();" class="font-semibold text-amber-950 text-xs">
               <option value="D">Domestic (D)</option>
               <option value="ND">Non-Domestic (ND)</option>
@@ -81,24 +80,19 @@
             </select>
           </div>
           <div>
-            <label class="text-amber-950">Consumer No</label>
-            <input type="text" id="calcConsumerNo" oninput="runCalculation()" placeholder="e.g. TVL/1234" class="uppercase font-mono text-xs">
+            <label class="text-amber-950 text-xs">Consumer No</label>
+            <input type="text" id="calcConsumerNo" oninput="runCalculation()" placeholder="e.g. ABC/123/D" class="uppercase font-mono text-xs">
           </div>
         </div>
 
-        <div id="tankerSubSection" class="hidden space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-          <label>Conveyance Distance (KM)</label>
-          <input type="number" id="tankerKM" min="0" value="10" oninput="runCalculation()" placeholder="KM" class="text-xs">
-        </div>
-
         <!-- CALCULATION MODE SWITCH -->
-        <div id="modeSelectionContainer" class="space-y-2.5">
-          <label>Calculation Method</label>
+        <div id="modeSelectionContainer" class="space-y-2">
+          <label class="text-xs">Calculation Method</label>
           <div class="seg flex">
-            <button type="button" onclick="switchCalcMode('monthly')" id="modeMonthlyBtn" class="flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1">
+            <button type="button" onclick="switchCalcMode('monthly')" id="modeMonthlyBtn" class="flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1.5">
               For a Month
             </button>
-            <button type="button" onclick="switchCalcMode('daterange')" id="modeDateRangeBtn" class="flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1">
+            <button type="button" onclick="switchCalcMode('daterange')" id="modeDateRangeBtn" class="flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1.5">
               For a Period
             </button>
           </div>
@@ -106,7 +100,7 @@
           <!-- MODE 1: FOR A MONTH -->
           <div id="sectionMonthly" class="space-y-2.5 pt-1">
             <div>
-              <label>Applicable Tariff Period *</label>
+              <label class="text-xs">Applicable Tariff Period *</label>
               <select id="calcPeriod" onchange="runCalculation()" class="font-semibold text-xs">
                 <option value="2023_present" selected>03/02/2023 Onwards (Present)</option>
                 <option value="2022_2023">01/04/2022 to 02/02/2023</option>
@@ -117,21 +111,21 @@
               </select>
             </div>
             <div>
-              <label id="lblUnitsLabel">Monthly Consumption (KL) *</label>
+              <label id="lblUnitsLabel" class="text-xs">Monthly Consumption (KL) *</label>
               <input type="number" id="calcMonthlyKL" min="0" value="15" oninput="runCalculation()" placeholder="Enter KL" class="text-xs">
             </div>
           </div>
 
           <!-- MODE 2: FOR A PERIOD -->
-          <div id="sectionDateRange" class="space-y-2.5 hidden pt-1">
+          <div id="sectionDateRange" class="space-y-2 hidden pt-1">
             <div class="flex items-center justify-between gap-2">
-              <label>Meter Readings *</label>
+              <label class="text-xs">Meter Readings *</label>
               <button type="button" onclick="addReadingRow()" class="inline-flex items-center gap-1 bg-slate-800 text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full shadow hover:bg-slate-700 transition">
                 <i class="fa-solid fa-plus text-[9px]"></i><span>Add Entry</span>
               </button>
             </div>
 
-            <div id="readingsContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+            <div id="readingsContainer" class="space-y-2 max-h-52 overflow-y-auto pr-1"></div>
 
             <div class="metrics grid grid-cols-2 gap-2 mt-1">
               <div>
@@ -148,29 +142,28 @@
       </section>
 
       <!-- RIGHT PANEL: MAIN RESULTS DISPLAY -->
-      <section class="lg:col-span-7 sheet p-3.5 space-y-3">
-        <div class="border-b pb-2 flex items-center justify-between" style="border-color:var(--ink)">
+      <section class="lg:col-span-7 sheet p-3 space-y-3">
+        <div class="border-b pb-2 flex items-center justify-between flex-wrap gap-2" style="border-color:var(--ink)">
           <div>
-            <h2 class="pt flex items-center gap-1.5">
+            <h2 class="pt flex items-center gap-1.5 text-sm">
               <i class="fa-solid fa-file-invoice-dollar text-blue-900 text-xs"></i>
               <span>Water Charge Calculation Statement</span>
             </h2>
-            <p class="hand text-xs" style="color:var(--stamp)">Live breakdown across revision dates</p>
+            <p class="hand text-[11px]" style="color:var(--stamp)">Live breakdown across revision dates</p>
           </div>
           <button type="button" onclick="downloadCalculationPDF()" class="inline-flex items-center gap-1.5 bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow hover:bg-red-800 transition">
-            <i class="fa-solid fa-file-pdf text-xs"><span>Export PDF</span></i>
+            <i class="fa-solid fa-file-pdf text-xs"></i><span>Export PDF</span>
           </button>
         </div>
 
         <div id="pdfExportContainer" class="statement space-y-2.5">
           <div class="border-b pb-1.5 text-center" style="border-color:rgba(27,42,92,.35)">
             <h4 class="uppercase font-bold tracking-wide">WATER CHARGE CALCULATION STATEMENT</h4>
-            <p class="hand text-xs" style="color:var(--stamp)">Kerala Water Authority - PH Division Thiruvalla</p>
           </div>
 
           <div id="stepBreakdown" class="text-xs space-y-2"></div>
 
-          <div class="mt-3 p-2.5 bg-amber-50 border border-amber-300 rounded text-[11px] text-amber-900 leading-snug" data-html2canvas-ignore="true">
+          <div class="mt-3 p-2 bg-amber-50 border border-amber-300 rounded text-[11px] text-amber-900 leading-snug" data-html2canvas-ignore="true">
             <span class="font-bold uppercase tracking-wide block mb-0.5 text-amber-950"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Disclaimer:</span>
             This calculation is intended for academic purposes only. For accurate and official water charge details, please consult official orders and eAbacus. This app is primarily built for long-term and One-Time Settlement (OTS) calculations. For bi-monthly billing, please recheck with eAbacus. Calculation errors may occur, so please use this tool only as a reference.
           </div>
@@ -187,6 +180,11 @@
 
     </div>
   </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full text-center py-3 mt-auto border-t border-slate-300 text-slate-700 text-xs px-2">
+    Designed and developed by <span class="font-bold">Bipin Joseph, Jr.Supdt</span>. Please whatsapp your suggestions to <a href="https://wa.me/919961900910" class="text-blue-900 font-bold underline">9961900910</a>.
+  </footer>
 
   <script>
     let activeCalcMode = 'monthly';
@@ -263,13 +261,13 @@
       const sectionDateRange = document.getElementById('sectionDateRange');
 
       if (mode === 'monthly') {
-        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1";
-        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1";
+        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1.5";
+        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1.5";
         sectionMonthly.classList.remove('hidden');
         sectionDateRange.classList.add('hidden');
       } else {
-        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1";
-        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1";
+        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1.5";
+        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1.5";
         sectionDateRange.classList.remove('hidden');
         sectionMonthly.classList.add('hidden');
       }
@@ -280,7 +278,6 @@
       const category = document.getElementById('calcCategory').value;
       const modeSelectionContainer = document.getElementById('modeSelectionContainer');
       const lblUnitsLabel = document.getElementById('lblUnitsLabel');
-      const tankerSubSection = document.getElementById('tankerSubSection');
       const calcPeriodSelect = document.getElementById('calcPeriod');
 
       if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category)) {
@@ -294,19 +291,15 @@
         modeSelectionContainer.classList.add('hidden');
         lblUnitsLabel.innerText = "Number of Taps / Units *";
         document.getElementById('calcMonthlyKL').value = "1";
-        tankerSubSection.classList.add('hidden');
       } else if (category === 'TANKER') {
         modeSelectionContainer.classList.add('hidden');
         lblUnitsLabel.innerText = "Water Quantity (KL) *";
-        tankerSubSection.classList.remove('hidden');
       } else if (category === 'BULK') {
         modeSelectionContainer.classList.add('hidden');
         lblUnitsLabel.innerText = "Monthly Consumption (KL) *";
-        tankerSubSection.classList.add('hidden');
       } else {
         modeSelectionContainer.classList.remove('hidden');
         lblUnitsLabel.innerText = "Monthly Consumption (KL) *";
-        tankerSubSection.classList.add('hidden');
       }
     }
 
@@ -315,7 +308,6 @@
       const consumerNo = document.getElementById('calcConsumerNo').value.trim().toUpperCase();
       const period = document.getElementById('calcPeriod').value;
       const monthlyKL = parseFloat(document.getElementById('calcMonthlyKL').value) || 0;
-      const tankerKM = parseFloat(document.getElementById('tankerKM').value) || 0;
 
       let dateInputs = document.querySelectorAll('.reading-date');
       let valInputs = document.querySelectorAll('.reading-val');
@@ -331,7 +323,6 @@
         mode: activeCalcMode,
         period,
         monthlyKL,
-        tankerKM,
         consumerNo,
         readings
       });
@@ -355,7 +346,6 @@
         let mode = data.mode;
         let period = data.period;
         let monthlyKL = parseFloat(data.monthlyKL) || 0;
-        let tankerKM = parseFloat(data.tankerKM) || 0;
         let consumerNo = data.consumerNo || '';
         let readings = data.readings || [];
 
@@ -374,7 +364,7 @@
         ];
 
         if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category) || mode === 'monthly') {
-          let base = calculateKWAChargeForPeriod(period, category, monthlyKL, tankerKM);
+          let base = calculateKWAChargeForPeriod(period, category, monthlyKL);
 
           if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category)) {
             totalBill = base.consumptionCharge;
@@ -497,7 +487,7 @@
       }
     }
 
-    function calculateKWAChargeForPeriod(period, category, klOrUnits, extraParam = 0) {
+    function calculateKWAChargeForPeriod(period, category, klOrUnits) {
       let fixedCharge = 0;
       let consumptionCharge = 0;
       let rawRateDisplay = "";
@@ -522,7 +512,7 @@
       }
       if (category === 'TANKER') {
         let fillRate = 76.15;
-        consumptionCharge = (1 * fillRate) + (extraParam * 0.00);
+        consumptionCharge = (1 * fillRate);
         rawRateDisplay = `Tanker Lorry Current Rate Info`;
         return { fixedCharge: 0, consumptionCharge, rateDisplay: rawRateDisplay };
       }
