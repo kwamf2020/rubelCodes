@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KWA Water Tariff Calculator - PH Division Thiruvalla</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --desk:#082a30;--paper:#f5f4ed;--ink:#1b2a5c;--ink2:#46558f;--gold:#e1b24b;--stamp:#a8272d;
+    }
+    body {
+      margin:0;font-family:Arial, Helvetica, sans-serif;font-size:14px;color:var(--ink);
+      background:transparent;font-style:normal;
+    }
+    :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    .hand{font-family:Arial, Helvetica, sans-serif;font-size:1.05rem;line-height:1.15;font-style:normal;font-weight:600;}
+    .pt{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:1.15rem;line-height:1.15;color:var(--ink);font-style:normal;}
+
+    .sheet{background:var(--paper);border-radius:6px;border-top:6px solid var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .sh-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem 1rem .5rem;background:var(--paper);border-bottom:2px double var(--ink)}
+    
+    input, select, textarea{width:100%;background:transparent;border:0;border-bottom:1.5px solid var(--ink2);border-radius:0;padding:.3rem .1rem;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;color:var(--ink);box-shadow:none;font-style:normal;}
+    input:focus, select:focus, textarea:focus{outline:0;border-bottom:2px solid var(--stamp);background:linear-gradient(transparent 68%,rgba(255,226,124,.65) 68%);box-shadow:none}
+    label{display:block;font-family:Arial, Helvetica, sans-serif;font-size:1rem;font-weight:700;line-height:1.1;color:var(--ink2);font-style:normal;}
+
+    .seg{background:#e9e7da;padding:2px;border-radius:4px;border:1px solid #d6d1bb}
+    .seg>button{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:0.8rem;cursor:pointer;color:var(--ink2);background:transparent;padding:.35rem .2rem;border-radius:3px;font-style:normal;}
+    .seg>button.bg-blue-600{background:var(--ink);color:#f8f1d6}
+
+    .metrics{background:#fff7cf;border:1px dashed var(--ink2);border-radius:4px;padding:.4rem;text-align:center}
+    .metrics .k{display:block;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;font-weight:700;color:var(--ink2);font-style:normal;}
+    .metrics .v{font-family:Arial, Helvetica, sans-serif;font-weight:600;font-size:1rem;color:var(--ink);font-style:normal;}
+
+    .statement{background:#fffef9;border:3px double var(--ink);padding:.8rem}
+    .statement h4{font-family:Arial, Helvetica, sans-serif;font-weight:700;color:var(--ink);letter-spacing:.04em;font-size:0.85rem;font-style:normal;}
+    #stepBreakdown{font-size:0.85rem;line-height:1.4;color:#232f5a;font-style:normal;font-family:Arial, Helvetica, sans-serif;}
+
+    .kv{width:100%;table-layout:fixed;border-collapse:collapse}
+    .kv td{padding:.2rem .15rem;vertical-align:top;border-bottom:1px dotted #bdb7a0;word-break:break-word;font-style:normal;font-family:Arial, Helvetica, sans-serif;}
+    .kv td:nth-child(1){width:42%;color:var(--ink2)}
+    .kv td:nth-child(2){width:1.2rem;text-align:center}
+    .kv td:nth-child(3){font-weight:600;color:var(--ink)}
+
+    .report-table th, .report-table td {
+      border-right: 1px dashed #bdb7a0;
+    }
+    .report-table th:last-child, .report-table td:last-child {
+      border-right: none;
+    }
+
+    .total{background:var(--ink);color:#f8f1d6;padding:.5rem .8rem;border-radius:4px}
+    .total .hand{color:#f5dc92;font-size:1.1rem;font-style:normal;font-weight:600;}
+    .total .amt{font-family:Arial, Helvetica, sans-serif;font-size:1.7rem;font-weight:700;line-height:1;color:#f5dc92;font-style:normal;}
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col p-2">
+
+  <main class="flex-1 max-w-7xl w-full mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      
+      <!-- LEFT PANEL: INPUT CONTROLS -->
+      <section class="lg:col-span-5 sheet p-3.5 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-50/70 p-2.5 rounded-lg border border-amber-200">
+          <div>
+            <label class="text-amber-950">Category *</label>
+            <select id="calcCategory" onchange="toggleInputs(); runCalculation();" class="font-semibold text-amber-950 text-xs">
+              <option value="D">Domestic (D)</option>
+              <option value="ND">Non-Domestic (ND)</option>
+              <option value="I">Industrial (I)</option>
+              <option value="PH_CORP">Public Hydrant - Corporation/Municipal</option>
+              <option value="PH_PANCH">Public Hydrant - Panchayath</option>
+              <option value="BULK">Bulk Supply (Local Self Govt)</option>
+              <option value="TANKER">Tanker Lorry Supply</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-amber-950">Consumer No</label>
+            <input type="text" id="calcConsumerNo" oninput="runCalculation()" placeholder="e.g. TVL/1234" class="uppercase font-mono text-xs">
+          </div>
+        </div>
+
+        <div id="tankerSubSection" class="hidden space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+          <label>Conveyance Distance (KM)</label>
+          <input type="number" id="tankerKM" min="0" value="10" oninput="runCalculation()" placeholder="KM" class="text-xs">
+        </div>
+
+        <!-- CALCULATION MODE SWITCH -->
+        <div id="modeSelectionContainer" class="space-y-2.5">
+          <label>Calculation Method</label>
+          <div class="seg flex">
+            <button type="button" onclick="switchCalcMode('monthly')" id="modeMonthlyBtn" class="flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1">
+              For a Month
+            </button>
+            <button type="button" onclick="switchCalcMode('daterange')" id="modeDateRangeBtn" class="flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1">
+              For a Period
+            </button>
+          </div>
+
+          <!-- MODE 1: FOR A MONTH -->
+          <div id="sectionMonthly" class="space-y-2.5 pt-1">
+            <div>
+              <label>Applicable Tariff Period *</label>
+              <select id="calcPeriod" onchange="runCalculation()" class="font-semibold text-xs">
+                <option value="2023_present" selected>03/02/2023 Onwards (Present)</option>
+                <option value="2022_2023">01/04/2022 to 02/02/2023</option>
+                <option value="2021_2022">01/04/2021 to 31/03/2022</option>
+                <option value="2014_2021">01/10/2014 to 31/03/2021</option>
+                <option value="2009_2014">01/03/2009 to 30/09/2014</option>
+                <option value="2008_2009">01/09/2008 to 28/02/2009</option>
+              </select>
+            </div>
+            <div>
+              <label id="lblUnitsLabel">Monthly Consumption (KL) *</label>
+              <input type="number" id="calcMonthlyKL" min="0" value="15" oninput="runCalculation()" placeholder="Enter KL" class="text-xs">
+            </div>
+          </div>
+
+          <!-- MODE 2: FOR A PERIOD -->
+          <div id="sectionDateRange" class="space-y-2.5 hidden pt-1">
+            <div class="flex items-center justify-between gap-2">
+              <label>Meter Readings *</label>
+              <button type="button" onclick="addReadingRow()" class="inline-flex items-center gap-1 bg-slate-800 text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full shadow hover:bg-slate-700 transition">
+                <i class="fa-solid fa-plus text-[9px]"></i><span>Add Entry</span>
+              </button>
+            </div>
+
+            <div id="readingsContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+
+            <div class="metrics grid grid-cols-2 gap-2 mt-1">
+              <div>
+                <span class="k">Total Span</span>
+                <span id="metricDays" class="v text-xs">0 Days (0 Months)</span>
+              </div>
+              <div>
+                <span class="k">Total Consumption</span>
+                <span id="metricTotalKL" class="v text-xs">0 KL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: MAIN RESULTS DISPLAY -->
+      <section class="lg:col-span-7 sheet p-3.5 space-y-3">
+        <div class="border-b pb-2 flex items-center justify-between" style="border-color:var(--ink)">
+          <div>
+            <h2 class="pt flex items-center gap-1.5">
+              <i class="fa-solid fa-file-invoice-dollar text-blue-900 text-xs"></i>
+              <span>Water Charge Calculation Statement</span>
+            </h2>
+            <p class="hand text-xs" style="color:var(--stamp)">Live breakdown across revision dates</p>
+          </div>
+          <button type="button" onclick="downloadCalculationPDF()" class="inline-flex items-center gap-1.5 bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow hover:bg-red-800 transition">
+            <i class="fa-solid fa-file-pdf text-xs"><span>Export PDF</span></i>
+          </button>
+        </div>
+
+        <div id="pdfExportContainer" class="statement space-y-2.5">
+          <div class="border-b pb-1.5 text-center" style="border-color:rgba(27,42,92,.35)">
+            <h4 class="uppercase font-bold tracking-wide">WATER CHARGE CALCULATION STATEMENT</h4>
+            <p class="hand text-xs" style="color:var(--stamp)">Kerala Water Authority - PH Division Thiruvalla</p>
+          </div>
+
+          <div id="stepBreakdown" class="text-xs space-y-2"></div>
+
+          <div class="mt-3 p-2.5 bg-amber-50 border border-amber-300 rounded text-[11px] text-amber-900 leading-snug" data-html2canvas-ignore="true">
+            <span class="font-bold uppercase tracking-wide block mb-0.5 text-amber-950"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Disclaimer:</span>
+            This calculation is intended for academic purposes only. For accurate and official water charge details, please consult official orders and eAbacus. This app is primarily built for long-term and One-Time Settlement (OTS) calculations. For bi-monthly billing, please recheck with eAbacus. Calculation errors may occur, so please use this tool only as a reference.
+          </div>
+
+          <div class="total flex items-center justify-between gap-3 mt-2">
+            <div>
+              <span class="hand block text-xs">Total Water Charge</span>
+              <span id="resSubtitle" class="text-[10px]" style="opacity:.85">Official proportional breakdown</span>
+            </div>
+            <span id="resTotalBill" class="amt">₹0.00</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    let activeCalcMode = 'monthly';
+    const MIN_SCOPE_DATE = new Date('2008-09-01');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDefaultReadings();
+      toggleInputs();
+      runCalculation();
+    });
+
+    function initDefaultReadings() {
+      const container = document.getElementById('readingsContainer');
+      container.innerHTML = '';
+      addReadingRow('2022-12-15', 20);
+      addReadingRow('2023-04-15', 85);
+    }
+
+    function addReadingRow(dateVal = '', readingVal = '') {
+      const container = document.getElementById('readingsContainer');
+      const rowId = 'row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200";
+      div.innerHTML = `
+        <div class="flex-1">
+          <label class="block text-[9px] font-bold text-slate-500 uppercase">Date</label>
+          <input type="date" value="${dateVal}" onblur="checkDateScopeAndRun(this)" class="w-full px-2 py-1 rounded border border-slate-300 text-xs bg-white focus:ring-1 focus:ring-blue-500 reading-date">
+        </div>
+        <div class="flex-1">
+          <label class="block text-[9px] font-bold text-slate-500 uppercase">Meter (KL)</label>
+          <input type="number" value="${readingVal}" oninput="runCalculation()" placeholder="KL" class="w-full px-2 py-1 rounded border border-slate-300 text-xs bg-white focus:ring-1 focus:ring-blue-500 reading-val">
+        </div>
+        <button type="button" onclick="removeReadingRow('${rowId}')" class="mt-3 text-red-500 hover:text-red-700 p-1" title="Remove">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+        </button>
+      `;
+      container.appendChild(div);
+      runCalculation();
+    }
+
+    function checkDateScopeAndRun(inputElement) {
+      if (inputElement.value) {
+        let enteredDate = new Date(inputElement.value);
+        if (enteredDate < MIN_SCOPE_DATE) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Out of Scope',
+            text: 'Meter reading date cannot be earlier than 01/09/2008.',
+            confirmButtonColor: '#1b2a5c'
+          });
+          inputElement.value = '2008-09-01';
+        }
+      }
+      runCalculation();
+    }
+
+    function removeReadingRow(rowId) {
+      const container = document.getElementById('readingsContainer');
+      if (container.children.length <= 2) {
+        Swal.fire('Notice', 'At least two reading entries are required for interval calculation.', 'info');
+        return;
+      }
+      document.getElementById(rowId).remove();
+      runCalculation();
+    }
+
+    function switchCalcMode(mode) {
+      activeCalcMode = mode;
+      const monthlyBtn = document.getElementById('modeMonthlyBtn');
+      const dateRangeBtn = document.getElementById('modeDateRangeBtn');
+      const sectionMonthly = document.getElementById('sectionMonthly');
+      const sectionDateRange = document.getElementById('sectionDateRange');
+
+      if (mode === 'monthly') {
+        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1";
+        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1";
+        sectionMonthly.classList.remove('hidden');
+        sectionDateRange.classList.add('hidden');
+      } else {
+        dateRangeBtn.className = "flex-1 text-xs font-bold rounded-md bg-blue-600 text-white transition py-1";
+        monthlyBtn.className = "flex-1 text-xs font-bold rounded-md text-slate-700 hover:bg-slate-300 transition py-1";
+        sectionDateRange.classList.remove('hidden');
+        sectionMonthly.classList.add('hidden');
+      }
+      runCalculation();
+    }
+
+    function toggleInputs() {
+      const category = document.getElementById('calcCategory').value;
+      const modeSelectionContainer = document.getElementById('modeSelectionContainer');
+      const lblUnitsLabel = document.getElementById('lblUnitsLabel');
+      const tankerSubSection = document.getElementById('tankerSubSection');
+      const calcPeriodSelect = document.getElementById('calcPeriod');
+
+      if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category)) {
+        calcPeriodSelect.value = '2023_present';
+        calcPeriodSelect.disabled = true;
+      } else {
+        calcPeriodSelect.disabled = false;
+      }
+
+      if (category === 'PH_CORP' || category === 'PH_PANCH') {
+        modeSelectionContainer.classList.add('hidden');
+        lblUnitsLabel.innerText = "Number of Taps / Units *";
+        document.getElementById('calcMonthlyKL').value = "1";
+        tankerSubSection.classList.add('hidden');
+      } else if (category === 'TANKER') {
+        modeSelectionContainer.classList.add('hidden');
+        lblUnitsLabel.innerText = "Water Quantity (KL) *";
+        tankerSubSection.classList.remove('hidden');
+      } else if (category === 'BULK') {
+        modeSelectionContainer.classList.add('hidden');
+        lblUnitsLabel.innerText = "Monthly Consumption (KL) *";
+        tankerSubSection.classList.add('hidden');
+      } else {
+        modeSelectionContainer.classList.remove('hidden');
+        lblUnitsLabel.innerText = "Monthly Consumption (KL) *";
+        tankerSubSection.classList.add('hidden');
+      }
+    }
+
+    function runCalculation() {
+      const category = document.getElementById('calcCategory').value;
+      const consumerNo = document.getElementById('calcConsumerNo').value.trim().toUpperCase();
+      const period = document.getElementById('calcPeriod').value;
+      const monthlyKL = parseFloat(document.getElementById('calcMonthlyKL').value) || 0;
+      const tankerKM = parseFloat(document.getElementById('tankerKM').value) || 0;
+
+      let dateInputs = document.querySelectorAll('.reading-date');
+      let valInputs = document.querySelectorAll('.reading-val');
+      let readings = [];
+      for (let i = 0; i < dateInputs.length; i++) {
+        if (dateInputs[i].value && valInputs[i].value !== '') {
+          readings.push({ date: dateInputs[i].value, val: parseFloat(valInputs[i].value) });
+        }
+      }
+
+      let payload = JSON.stringify({
+        category,
+        mode: activeCalcMode,
+        period,
+        monthlyKL,
+        tankerKM,
+        consumerNo,
+        readings
+      });
+
+      let resObj = JSON.parse(serverCalculate(payload));
+      if (resObj.success) {
+        document.getElementById('resTotalBill').innerText = resObj.totalBill;
+        document.getElementById('resSubtitle').innerText = resObj.subtitle;
+        document.getElementById('stepBreakdown').innerHTML = resObj.stepHtml;
+        if (resObj.metricDays) document.getElementById('metricDays').innerText = resObj.metricDays;
+        if (resObj.metricTotalKL) document.getElementById('metricTotalKL').innerText = resObj.metricTotalKL;
+      } else {
+        document.getElementById('stepBreakdown').innerHTML = `<p class='text-red-500 font-semibold p-2'>${resObj.error}</p>`;
+      }
+    }
+
+    function serverCalculate(payloadJson) {
+      try {
+        let data = JSON.parse(payloadJson);
+        let category = data.category;
+        let mode = data.mode;
+        let period = data.period;
+        let monthlyKL = parseFloat(data.monthlyKL) || 0;
+        let tankerKM = parseFloat(data.tankerKM) || 0;
+        let consumerNo = data.consumerNo || '';
+        let readings = data.readings || [];
+
+        let stepHtml = "";
+        let totalBill = 0;
+        let inspectionCharge = 2.00;
+        let consumerNoHeader = consumerNo ? `<table class="kv"><tbody><tr><td>Consumer No</td><td>:</td><td>${consumerNo}</td></tr></tbody></table>` : '';
+
+        const TARIFF_PERIODS = [
+          { id: '2008_2009', name: '01/09/2008 - 28/02/2009', start: new Date('2008-09-01'), end: new Date('2009-02-28') },
+          { id: '2009_2014', name: '01/03/2009 - 30/09/2014', start: new Date('2009-03-01'), end: new Date('2014-09-30') },
+          { id: '2014_2021', name: '01/10/2014 - 31/03/2021', start: new Date('2014-10-01'), end: new Date('2021-03-31') },
+          { id: '2021_2022', name: '01/04/2021 - 31/03/2022', start: new Date('2021-04-01'), end: new Date('2022-03-31') },
+          { id: '2022_2023', name: '01/04/2022 - 02/02/2023', start: new Date('2022-04-01'), end: new Date('2023-02-02') },
+          { id: '2023_present', name: '03/02/2023 Onwards', start: new Date('2023-02-03'), end: new Date('2099-12-31') }
+        ];
+
+        if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category) || mode === 'monthly') {
+          let base = calculateKWAChargeForPeriod(period, category, monthlyKL, tankerKM);
+
+          if (['PH_CORP', 'PH_PANCH', 'BULK', 'TANKER'].includes(category)) {
+            totalBill = base.consumptionCharge;
+            stepHtml = `${consumerNoHeader}<table class="kv"><tbody><tr><td>Category</td><td>:</td><td>${category}</td></tr><tr><td>Units/Quantity</td><td>:</td><td>1 (Info Rate)</td></tr><tr><td>Rate Info</td><td>:</td><td>${base.rateDisplay}</td></tr></tbody></table>`;
+          } else {
+            totalBill = base.fixedCharge + base.consumptionCharge + 2.00;
+            stepHtml = `${consumerNoHeader}<table class="kv"><tbody><tr><td>Period</td><td>:</td><td>${period}</td></tr><tr><td>Category</td><td>:</td><td>${category}</td></tr><tr><td>Consumption</td><td>:</td><td>${monthlyKL.toFixed(2)} KL</td></tr><tr><td>Rate</td><td>:</td><td>${base.rateDisplay}</td></tr><tr><td>Fixed Charge</td><td>:</td><td>₹${base.fixedCharge.toFixed(2)}</td></tr><tr><td>Consumption Charge</td><td>:</td><td>₹${base.consumptionCharge.toFixed(2)}</td></tr><tr><td style="text-align:right;" colspan="3">Inspection Charge: ₹2.00</td></tr></tbody></table>`;
+          }
+
+          return JSON.stringify({
+            success: true,
+            totalBill: '₹' + totalBill.toFixed(2),
+            subtitle: 'Direct Monthly Calculation Mode',
+            stepHtml: stepHtml,
+            metricDays: '0 Days (0.00 Months)',
+            metricTotalKL: '0 KL'
+          });
+
+        } else {
+          if (readings.length < 2) {
+            return JSON.stringify({ success: false, error: 'Please provide at least two valid date and reading entries.' });
+          }
+
+          readings.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          let totalDaysAll = 0;
+          let totalConsumptionAll = 0;
+          let tableRowsHtml = "";
+          let grandIntervalsCharge = 0;
+
+          for (let j = 0; j < readings.length - 1; j++) {
+            let r1 = { date: new Date(readings[j].date), val: readings[j].val };
+            let r2 = { date: new Date(readings[j+1].date), val: readings[j+1].val };
+
+            let rawIntervalDays = Math.max(1, Math.round((r2.date - r1.date) / (1000 * 60 * 60 * 24)));
+            let rawIntervalKL = Math.max(0, r2.val - r1.val);
+
+            totalDaysAll += rawIntervalDays;
+            totalConsumptionAll += rawIntervalKL;
+
+            for (let tp of TARIFF_PERIODS) {
+              let overlapStart = new Date(Math.max(r1.date.getTime(), tp.start.getTime()));
+              let overlapEnd = new Date(Math.min(r2.date.getTime(), tp.end.getTime()));
+
+              if (overlapStart <= overlapEnd) {
+                let overlapDays = Math.round((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
+                if (overlapDays < 1) overlapDays = 1;
+                if (j === readings.length - 2 && tp.id === TARIFF_PERIODS[TARIFF_PERIODS.length - 1].id && overlapDays > rawIntervalDays) {
+                  overlapDays = rawIntervalDays;
+                }
+
+                let proportion = overlapDays / rawIntervalDays;
+                let segmentKL = rawIntervalKL * proportion;
+                let monthFraction = overlapDays / 30.42;
+                let monthsVal = parseFloat(monthFraction.toFixed(2));
+                let avgMonthlyCons = monthFraction > 0 ? (segmentKL / monthFraction) : segmentKL;
+
+                let base = calculateKWAChargeForPeriod(tp.id, category, avgMonthlyCons);
+                let monthlyTariff = base.fixedCharge + base.consumptionCharge;
+                let segmentTotal = parseFloat((monthsVal * monthlyTariff).toFixed(2));
+
+                grandIntervalsCharge += segmentTotal;
+
+                let intervalLabel = `${format2DateDDMMYYYY(overlapStart)} to ${format2DateDDMMYYYY(overlapEnd)}<br><span class="text-[9px] text-slate-500 font-sans">(${tp.name})</span>`;
+
+                tableRowsHtml += `
+                  <tr class="hover:bg-sky-50 transition">
+                    <td class="p-1.5 border-b font-medium text-[11px] text-center">${intervalLabel}</td>
+                    <td class="p-1.5 border-b text-[11px] text-center">${overlapDays} days</td>
+                    <td class="p-1.5 border-b text-[11px] text-center">${monthsVal.toFixed(2)} m</td>
+                    <td class="p-1.5 border-b font-bold text-[11px] text-center">${segmentKL.toFixed(2)} KL</td>
+                    <td class="p-1.5 border-b text-[11px] text-center">${avgMonthlyCons.toFixed(2)} KL</td>
+                    <td class="p-1.5 border-b text-[10px] text-slate-700 text-center">${base.rateDisplay}</td>
+                    <td class="p-1.5 border-b font-bold text-blue-900 text-[11px] text-center">₹${monthlyTariff.toFixed(2)}</td>
+                    <td class="p-1.5 border-b font-bold text-blue-900 text-right text-[11px]">₹${segmentTotal.toFixed(2)}</td>
+                  </tr>
+                `;
+              }
+            }
+          }
+
+          let totalMonthsRoundedUp = Math.ceil(totalDaysAll / 30.42);
+          let totalMonthsExact = (totalDaysAll / 30.42).toFixed(2);
+          inspectionCharge = totalMonthsRoundedUp * 2.00;
+          totalBill = grandIntervalsCharge + inspectionCharge;
+
+          stepHtml = `
+            ${consumerNoHeader}
+            <div class="overflow-x-auto mb-2">
+              <table class="w-full text-left border-collapse bg-white rounded-lg overflow-hidden text-xs report-table">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-300">
+                    <th class="p-1.5 border-b text-center">Interval</th>
+                    <th class="p-1.5 border-b text-center">Days</th>
+                    <th class="p-1.5 border-b text-center">Months</th>
+                    <th class="p-1.5 border-b text-center">Total Cons</th>
+                    <th class="p-1.5 border-b text-center">Avg Monthly Cons</th>
+                    <th class="p-1.5 border-b text-center">Rate Slabs</th>
+                    <th class="p-1.5 border-b text-center">Tariff (One Month)</th>
+                    <th class="p-1.5 border-b text-right">Total Charge (Months × Tariff)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">${tableRowsHtml}</tbody>
+              </table>
+            </div>
+            <div style="text-align: right; font-weight: bold; padding: 4px 0;">Inspection Charge (${totalMonthsRoundedUp} Months  × ₹2/-): ₹${inspectionCharge.toFixed(2)}</div>
+          `;
+
+          return JSON.stringify({
+            success: true,
+            totalBill: '₹' + totalBill.toFixed(2),
+            subtitle: '(Water charge + Inspection Charge)',
+            stepHtml: stepHtml,
+            metricDays: `${totalDaysAll} Days (${totalMonthsExact} Months)`,
+            metricTotalKL: totalConsumptionAll + ' KL'
+          });
+        }
+      } catch (err) {
+        return JSON.stringify({ success: false, error: err.toString() });
+      }
+    }
+
+    function calculateKWAChargeForPeriod(period, category, klOrUnits, extraParam = 0) {
+      let fixedCharge = 0;
+      let consumptionCharge = 0;
+      let rawRateDisplay = "";
+
+      if (category === 'PH_CORP') {
+        let ratePerYear = 21838.68;
+        consumptionCharge = 1 * ratePerYear;
+        rawRateDisplay = `₹${ratePerYear.toLocaleString('en-IN')}/yr per tap (Current Rate Info)`;
+        return { fixedCharge: 0, consumptionCharge, rateDisplay: rawRateDisplay };
+      }
+      if (category === 'PH_PANCH') {
+        let ratePerYear = 14559.12;
+        consumptionCharge = 1 * ratePerYear;
+        rawRateDisplay = `₹${ratePerYear.toLocaleString('en-IN')}/yr per tap (Current Rate Info)`;
+        return { fixedCharge: 0, consumptionCharge, rateDisplay: rawRateDisplay };
+      }
+      if (category === 'BULK') {
+        let ratePerKL = 16.62;
+        consumptionCharge = 1 * ratePerKL;
+        rawRateDisplay = `₹${ratePerKL.toFixed(2)}/KL (Current Rate Info)`;
+        return { fixedCharge: 0, consumptionCharge, rateDisplay: rawRateDisplay };
+      }
+      if (category === 'TANKER') {
+        let fillRate = 76.15;
+        consumptionCharge = (1 * fillRate) + (extraParam * 0.00);
+        rawRateDisplay = `Tanker Lorry Current Rate Info`;
+        return { fixedCharge: 0, consumptionCharge, rateDisplay: rawRateDisplay };
+      }
+
+      if (category === 'D') {
+        if (period === '2023_present') {
+          if (klOrUnits <= 5) { consumptionCharge = Math.max(72.05, klOrUnits * 14.41); rawRateDisplay = "₹14.41/KL (Min ₹72.05 + Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 72.05 + ((klOrUnits - 5) * 14.41); rawRateDisplay = "₹72.05 for first 5 KL + ₹14.41/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 15) { consumptionCharge = 144.10 + ((klOrUnits - 10) * 15.51); rawRateDisplay = "₹144.10 for first 10 KL + ₹15.51/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = klOrUnits * 16.62; rawRateDisplay = "₹16.62/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 25) { consumptionCharge = klOrUnits * 17.72; rawRateDisplay = "₹17.72/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = klOrUnits * 19.92; rawRateDisplay = "₹19.92/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = klOrUnits * 23.23; rawRateDisplay = "₹23.23/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = klOrUnits * 25.44; rawRateDisplay = "₹25.44/KL entire (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 1272.00 + ((klOrUnits - 50) * 54.10); rawRateDisplay = "₹1,272 for first 50 KL + ₹54.10/KL thereafter (Fixed Charge ₹0)"; }
+        } else if (period === '2022_2023') {
+          if (klOrUnits <= 5) { consumptionCharge = Math.max(22.05, klOrUnits * 4.41); rawRateDisplay = "₹4.41/KL (Min ₹22.05 + Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 22.05 + ((klOrUnits - 5) * 4.41); rawRateDisplay = "₹22.05 for first 5 KL + ₹4.41/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 15) { consumptionCharge = 44.10 + ((klOrUnits - 10) * 5.51); rawRateDisplay = "₹44.10 for first 10 KL + ₹5.51/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = klOrUnits * 6.62; rawRateDisplay = "₹6.62/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 25) { consumptionCharge = klOrUnits * 7.72; rawRateDisplay = "₹7.72/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = klOrUnits * 9.92; rawRateDisplay = "₹9.92/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = klOrUnits * 13.23; rawRateDisplay = "₹13.23/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = klOrUnits * 15.44; rawRateDisplay = "₹15.44/KL entire (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 772.00 + ((klOrUnits - 50) * 44.10); rawRateDisplay = "₹772 for first 50 KL + ₹44.10/KL thereafter (Fixed Charge ₹0)"; }
+        } else if (period === '2021_2022') {
+          if (klOrUnits <= 5) { consumptionCharge = Math.max(21.00, klOrUnits * 4.20); rawRateDisplay = "₹4.20/KL (Min ₹21 + Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 21.00 + ((klOrUnits - 5) * 4.20); rawRateDisplay = "₹21 for first 5 KL + ₹4.20/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 15) { consumptionCharge = 42.00 + ((klOrUnits - 10) * 5.25); rawRateDisplay = "₹42 for first 10 KL + ₹5.25/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = klOrUnits * 6.30; rawRateDisplay = "₹6.30/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 25) { consumptionCharge = klOrUnits * 7.35; rawRateDisplay = "₹7.35/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = klOrUnits * 9.45; rawRateDisplay = "₹9.45/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = klOrUnits * 12.60; rawRateDisplay = "₹12.60/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = klOrUnits * 14.70; rawRateDisplay = "₹14.70/KL entire (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 735.00 + ((klOrUnits - 50) * 42.00); rawRateDisplay = "₹735 for first 50 KL + ₹42/KL thereafter (Fixed Charge ₹0)"; }
+        } else if (period === '2014_2021') {
+          if (klOrUnits <= 5) { consumptionCharge = Math.max(20.00, klOrUnits * 4.00); rawRateDisplay = "₹4/KL (Min ₹20 + Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 20.00 + ((klOrUnits - 5) * 4.00); rawRateDisplay = "₹20 for first 5 KL + ₹4/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 15) { consumptionCharge = 40.00 + ((klOrUnits - 10) * 5.00); rawRateDisplay = "₹40 for first 10 KL + ₹5/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = klOrUnits * 6.00; rawRateDisplay = "₹6/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 25) { consumptionCharge = klOrUnits * 7.00; rawRateDisplay = "₹7/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = klOrUnits * 9.00; rawRateDisplay = "₹9/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = klOrUnits * 12.00; rawRateDisplay = "₹12/KL entire (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = klOrUnits * 14.00; rawRateDisplay = "₹14/KL entire (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 700.00 + ((klOrUnits - 50) * 40.00); rawRateDisplay = "₹700 for first 50 KL + ₹40/KL thereafter (Fixed Charge ₹0)"; }
+        } else if (period === '2009_2014') {
+          if (klOrUnits <= 5) { consumptionCharge = 20.00; rawRateDisplay = "₹20/KL Min (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 20.00 + ((klOrUnits - 5) * 4.00); rawRateDisplay = "₹20 for first 5 KL + ₹4/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = 40.00 + ((klOrUnits - 10) * 5.00); rawRateDisplay = "₹40 for first 10 KL + ₹5/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = 90.00 + ((klOrUnits - 20) * 6.00); rawRateDisplay = "₹90 for first 20 KL + ₹6/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = 150.00 + ((klOrUnits - 30) * 10.00); rawRateDisplay = "₹150 for first 30 KL + ₹10/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = 250.00 + ((klOrUnits - 40) * 14.00); rawRateDisplay = "₹250 for first 40 KL + ₹14/KL thereafter (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 390.00 + ((klOrUnits - 50) * 25.00); rawRateDisplay = "₹390 for first 50 KL + ₹25/KL thereafter (Fixed Charge ₹0)"; }
+        } else if (period === '2008_2009') {
+          if (klOrUnits <= 5) { consumptionCharge = 20.00; rawRateDisplay = "₹20/KL Min (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 10) { consumptionCharge = 20.00 + ((klOrUnits - 5) * 4.00); rawRateDisplay = "₹20 for first 5 KL + ₹4/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 20) { consumptionCharge = 40.00 + ((klOrUnits - 10) * 5.00); rawRateDisplay = "₹40 for first 10 KL + ₹5/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 30) { consumptionCharge = 90.00 + ((klOrUnits - 20) * 6.00); rawRateDisplay = "₹90 for first 20 KL + ₹6/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 40) { consumptionCharge = 150.00 + ((klOrUnits - 30) * 14.00); rawRateDisplay = "₹150 for first 30 KL + ₹14/KL thereafter (Fixed Charge ₹0)"; }
+          else if (klOrUnits <= 50) { consumptionCharge = 290.00 + ((klOrUnits - 40) * 14.00); rawRateDisplay = "₹290 for first 40 KL + ₹14/KL thereafter (Fixed Charge ₹0)"; }
+          else { consumptionCharge = 430.00 + ((klOrUnits - 50) * 25.00); rawRateDisplay = "₹430 for first 50 KL + ₹25/KL thereafter (Fixed Charge ₹0)"; }
+        }
+      } else if (category === 'ND') {
+        fixedCharge = period === '2023_present' ? 55.13 : (period === '2022_2023' ? 55.13 : (period === '2021_2022' ? 52.50 : (period==='2014_2021' ? 50.00:0.00)));
+        let fcStr = `Fixed Charge ₹${fixedCharge.toFixed(2)}`;
+        if (period === '2023_present') {
+          if (klOrUnits <= 15) { consumptionCharge = Math.max(265.40, klOrUnits * 26.54); rawRateDisplay = `₹26.54/KL (Min ₹265.40 + ${fcStr})`; }
+          else if (klOrUnits <= 30) { consumptionCharge = 398.10 + ((klOrUnits - 15) * 33.15); rawRateDisplay = `₹398.10 for first 15 KL + ₹33.15/KL thereafter (${fcStr})`; }
+          else if (klOrUnits <= 50) { consumptionCharge = 895.35 + ((klOrUnits - 30) * 40.87); rawRateDisplay = `₹895.35 for first 30 KL + ₹40.87/KL thereafter (${fcStr})`; }
+          else { consumptionCharge = 1712.75 + ((klOrUnits - 50) * 54.10); rawRateDisplay = `₹1,712.75 for first 50 KL + ₹54.10/KL thereafter (${fcStr})`; }
+        } else if (period === '2022_2023') {
+          if (klOrUnits <= 15) { consumptionCharge = Math.max(165.40, klOrUnits * 16.54); rawRateDisplay = `₹16.54/KL (Min ₹165.40 + ${fcStr})`; }
+          else if (klOrUnits <= 30) { consumptionCharge = 248.10 + ((klOrUnits - 15) * 23.15); rawRateDisplay = `₹248.10 for first 15 KL + ₹23.15/KL thereafter (${fcStr})`; }
+          else if (klOrUnits <= 50) { consumptionCharge = 595.35 + ((klOrUnits - 30) * 30.87); rawRateDisplay = `₹595.35 for first 30 KL + ₹30.87/KL thereafter (${fcStr})`; }
+          else { consumptionCharge = 1212.75 + ((klOrUnits - 50) * 44.10); rawRateDisplay = `₹1,212.75 for first 50 KL + ₹44.10/KL thereafter (${fcStr})`; }
+        } else if (period === '2021_2022') {
+          if (klOrUnits <= 15) { consumptionCharge = Math.max(157.50, klOrUnits * 15.75); rawRateDisplay = `₹15.75/KL (Min ₹157.50 + ${fcStr})`; }
+          else if (klOrUnits <= 30) { consumptionCharge = 236.25 + ((klOrUnits - 15) * 22.05); rawRateDisplay = `₹236.25 for first 15 KL + ₹22.05/KL thereafter (${fcStr})`; }
+          else if (klOrUnits <= 50) { consumptionCharge = 567.00 + ((klOrUnits - 30) * 29.40); rawRateDisplay = `₹567 for first 30 KL + ₹29.40/KL thereafter (${fcStr})`; }
+          else { consumptionCharge = 1155.00 + ((klOrUnits - 50) * 42.00); rawRateDisplay = `₹1,155 for first 50 KL + ₹42/KL thereafter (${fcStr})`; }
+        } else if (period === '2014_2021') {
+          if (klOrUnits <= 15) { consumptionCharge = Math.max(150.00, klOrUnits * 15.00); rawRateDisplay = `₹15/KL (Min ₹150 + ${fcStr})`; }
+          else if (klOrUnits <= 30) { consumptionCharge = 225.00 + ((klOrUnits - 15) * 21.00); rawRateDisplay = `₹225 for first 15 KL + ₹21/KL thereafter (${fcStr})`; }
+          else if (klOrUnits <= 50) { consumptionCharge = 540.00 + ((klOrUnits - 30) * 28.00); rawRateDisplay = `₹540 for first 30 KL + ₹28/KL thereafter (${fcStr})`; }
+          else { consumptionCharge = 1100.00 + ((klOrUnits - 50) * 40.00); rawRateDisplay = `₹1,100 for first 50 KL + ₹40/KL thereafter (${fcStr})`; }
+        } else if (period === '2009_2014' || period === '2008_2009') {
+          if (klOrUnits <= 15) { consumptionCharge = Math.max(125.00, klOrUnits * 10.00); rawRateDisplay = `₹10/KL (Min ₹125 + ${fcStr})`; }
+          else if (klOrUnits <= 50) { consumptionCharge = 150.00 + ((klOrUnits - 15) * 14.00); rawRateDisplay = `₹150 for first 15 KL + ₹14/KL thereafter (${fcStr})`; }
+          else { consumptionCharge = 640.00 + ((klOrUnits - 50) * 25.00); rawRateDisplay = `₹640 for first 50 KL + ₹25/KL thereafter (${fcStr})`; }
+        }
+      } else if (category === 'I') {
+        if (period === '2023_present') { fixedCharge = 165.38; consumptionCharge = Math.max(541.00, klOrUnits * 54.10); rawRateDisplay = `₹54.10/KL (Min ₹541 + Fixed Charge ₹${fixedCharge})`; }
+        else if (period === '2022_2023') { fixedCharge = 165.38; consumptionCharge = Math.max(275.63, klOrUnits * 44.10); rawRateDisplay = `₹44.10/KL (Min ₹275.63 + Fixed Charge ₹${fixedCharge})`; }
+        else if (period === '2021_2022') { fixedCharge = 157.50; consumptionCharge = Math.max(262.50, klOrUnits * 42.00); rawRateDisplay = `₹42/KL (Min ₹262.50 + Fixed Charge ₹${fixedCharge})`; }
+        else if (period === '2014_2021') { fixedCharge = 150.00; consumptionCharge = Math.max(250.00, klOrUnits * 40.00); rawRateDisplay = `₹40/KL (Min ₹250 + Fixed Charge ₹${fixedCharge})`; }
+        else if (period === '2009_2014' || period === '2008_2009') { consumptionCharge = Math.max(250.00, klOrUnits * 25.00); rawRateDisplay = "₹25/KL (Min ₹250 + Fixed Charge ₹0)"; }
+      }
+
+      return { fixedCharge, consumptionCharge, rateDisplay: rawRateDisplay };
+    }
+
+    function format2DateDDMMYYYY(dateInput) {
+      if (!dateInput) return '';
+      let d = new Date(dateInput);
+      if (isNaN(d.getTime())) {
+        const parts = String(dateInput).split('T')[0].split('-');
+        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        return dateInput;
+      }
+      return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    }
+
+    function downloadCalculationPDF() {
+      const element = document.getElementById('pdfExportContainer');
+      const prevScrollY = window.scrollY;
+      window.scrollTo(0, 0);
+      const opt = {
+        margin:       8,
+        filename:     'KWA_Proportional_Water_Charge_Statement.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, scrollX: 0, scrollY: 0, backgroundColor: '#ffffff' },
+        pagebreak:    { mode: ['css', 'legacy'], avoid: 'tr' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      Swal.fire({
+        title: 'Generating PDF Statement...',
+        text: 'Compiling proportional calculation report',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      html2pdf().from(element).set(opt).save().then(() => {
+        window.scrollTo(0, prevScrollY);
+        Swal.close();
+        Swal.fire({
+          icon: 'success',
+          title: 'PDF Exported',
+          text: 'Calculation statement successfully downloaded.',
+          timer: 1800,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        window.scrollTo(0, prevScrollY);
+        Swal.fire('Error', 'Failed to generate PDF: ' + err, 'error');
+      });
+    }
+  </script>
+</body>
+</html>
