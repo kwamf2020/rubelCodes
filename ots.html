@@ -26,6 +26,9 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
@@ -40,7 +43,7 @@
         .print-only { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-6 min-h-screen pb-16 selection:bg-blue-600 selection:text-white">
+<body class="p-3 md:p-6 min-h-screen pb-16 selection:bg-blue-600 selection:text-white">
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
@@ -49,7 +52,7 @@
     <div id="savedCasesDrawer" class="fixed inset-0 z-50 hidden no-print">
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="toggleSavedCasesDrawer()"></div>
         <div class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl border-l border-slate-200 flex flex-col z-10">
-            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-900 text-white">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex justify-between items-center bg-slate-900 text-white">
                 <div class="flex items-center gap-2.5">
                     <i class="fa-solid fa-folder-tree text-blue-400 text-lg"></i>
                     <div>
@@ -61,7 +64,7 @@
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+            <div class="p-3 sm:p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <span class="text-xs font-semibold text-slate-600">Current Active Consumer</span>
                 <button onclick="saveCurrentCase()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
                     <i class="fa-solid fa-floppy-disk"></i> Save Current Case
@@ -71,94 +74,102 @@
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto space-y-6">
-        <!-- APP HEADER NAVIGATION -->
-        <header class="bg-slate-950 text-white rounded-2xl shadow-xl p-4 no-print flex flex-col lg:flex-row justify-between items-center gap-4 border border-slate-800">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 p-2.5 rounded-xl shadow-lg text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
-                    <i class="fa-solid fa-house"></i> <span>Home</span>
-                </a>
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold">
-                <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
-                <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter faulty letters</a>
-                <a href="ots.html" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg shadow">One Time Settlement</a>
-                <a href="prerr.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Pre RR letters</a>
-                <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleSavedCasesDrawer()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition border border-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-box-archive text-amber-400"></i> Saved <span id="savedCountBadge" class="bg-slate-950 text-slate-300 px-1.5 py-0.2 rounded text-[10px] font-mono">0</span>
-                </button>
-                <button onclick="loadSampleData()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Demo
-                </button>
-                <button onclick="resetApp()" class="px-3 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </button>
+    <div class="max-w-5xl mx-auto space-y-4 md:space-y-6">
+        <!-- MOBILE-OPTIMIZED APP HEADER NAVIGATION -->
+        <header class="bg-slate-950 text-white rounded-2xl shadow-xl p-3 md:p-4 no-print border border-slate-800">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                            <i class="fa-solid fa-house"></i> <span>Home</span>
+                        </a>
+                        <span class="text-xs font-bold text-slate-300">OTS Suite</span>
+                    </div>
+                    <!-- Quick action buttons on mobile top bar -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="toggleSavedCasesDrawer()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition border border-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-box-archive text-amber-400"></i> <span class="hidden sm:inline">Saved</span> <span id="savedCountBadge" class="bg-slate-950 text-slate-300 px-1.5 py-0.2 rounded text-[10px] font-mono">0</span>
+                        </button>
+                        <button onclick="loadSampleData()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo</span>
+                        </button>
+                        <button onclick="resetApp()" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Smooth Horizontal Swipe Nav on Mobile -->
+                <nav class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 text-xs font-semibold whitespace-nowrap">
+                    <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
+                    <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter faulty letters</a>
+                    <a href="ots.html" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg shadow">One Time Settlement</a>
+                    <a href="prerr.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Pre RR letters</a>
+                    <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
+                </nav>
             </div>
         </header>
 
-        <main class="space-y-6">
+        <main class="space-y-4 md:space-y-6">
 
         <!-- SECTION 1: Consumer Details & OTS Policy Levers -->
         <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
-            <div class="bg-slate-50/80 px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-4">
-                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <div class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-3">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-blue-600"></i> 1. Consumer Profile & OTS Policy Configuration
                 </h2>
-                <div class="flex flex-wrap items-center gap-4">
-                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200" title="Reconciles each row with the eAbacus Closing Balance column so cumulative demands or prior write-offs are never double-counted">
+                <div class="flex flex-wrap items-center gap-3">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200" title="Reconciles each row with the eAbacus Closing Balance column so cumulative demands or prior write-offs are never double-counted">
                         <input type="checkbox" id="reconcileLedgerToggle" checked onchange="handleParamChange()" class="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
                         <span>Auto-Reconcile with eAbacus Balance</span>
                     </label>
-                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-600">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-medium text-slate-600">
                         <input type="checkbox" id="autoCalcToggle" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         <span>Auto-Recalculate on Change</span>
                     </label>
                 </div>
             </div>
 
-            <div class="p-6 space-y-5">
+            <div class="p-4 sm:p-6 space-y-4">
                 <!-- Primary Consumer & Date Fields -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Consumer Name / Authority</label>
                         <div class="relative">
                             <i class="fa-regular fa-building absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="consumerName" value="" placeholder="Enter Consumer Name" oninput="handleParamChange()" class="w-full text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <input type="text" id="consumerName" value="" placeholder="Enter Consumer Name" oninput="handleParamChange()" class="w-full text-xs sm:text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Consumer No. / ID</label>
                         <div class="relative">
                             <i class="fa-solid fa-hashtag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="consumerNo" value="" placeholder="Enter Consumer No." oninput="handleParamChange()" class="w-full text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                            <input type="text" id="consumerNo" value="" placeholder="Enter Consumer No." oninput="handleParamChange()" class="w-full text-xs sm:text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Consider From Date</label>
-                        <input type="date" id="fromDate" value="2015-04-01" onchange="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="date" id="fromDate" value="2015-04-01" onchange="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Consider To Date</label>
-                        <input type="date" id="toDate" value="2026-03-31" onchange="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="date" id="toDate" value="2026-03-31" onchange="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">OTS Annual Interest Rate</label>
                         <div class="relative">
-                            <input type="number" id="annualRate" value="12" step="0.1" min="0" oninput="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono font-semibold text-blue-700">
+                            <input type="number" id="annualRate" value="12" step="0.1" min="0" oninput="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono font-semibold text-blue-700">
                             <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Advanced Policy Levers -->
-                <div class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/60">
+                <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-slate-50/60 p-3 sm:p-4 rounded-xl border border-slate-200/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Additional OTS Interest Waiver (%)</label>
                         <div class="relative">
-                            <input type="number" id="interestWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
+                            <input type="number" id="interestWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
                             <span class="absolute right-3 top-1.5 text-xs font-semibold text-slate-400">%</span>
                         </div>
                         <span class="text-[10px] text-slate-400">Rebate on calculated OTS fine</span>
@@ -166,14 +177,14 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Additional Surcharge waiver (%)</label>
                         <div class="relative">
-                            <input type="number" id="surchargeWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
+                            <input type="number" id="surchargeWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
                             <span class="absolute right-3 top-1.5 text-xs font-semibold text-slate-400">%</span>
                         </div>
                         <span class="text-[10px] text-slate-400">Percentage waiver on surcharge</span>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Settlement Installments</label>
-                        <select id="installmentCount" onchange="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <select id="installmentCount" onchange="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                             <option value="1">Single Lump-Sum Payment (1x)</option>
                             <option value="2">2 Monthly Installments</option>
                             <option value="3">3 Monthly Installments</option>
@@ -184,7 +195,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">OTS Sanction Reference / Circular</label>
-                        <input type="text" id="circularRef" value="" placeholder="Enter Circular Reference" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                        <input type="text" id="circularRef" value="" placeholder="Enter Circular Reference" oninput="handleParamChange()" class="w-full text-xs sm:text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
                         <span class="text-[10px] text-slate-400">Printed on Official OTS Notice</span>
                     </div>
                 </div>
@@ -193,9 +204,9 @@
 
         <!-- SECTION 2: Paste Data from eAbacus DCB -->
         <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
-            <div class="bg-slate-50/80 px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-2">
+            <div class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-2">
                 <div>
-                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-database text-blue-600"></i> 2. Paste Data from eAbacus DCB
                     </h2>
                 </div>
@@ -204,17 +215,17 @@
                 </button>
             </div>
 
-            <div id="importPanelBody" class="p-6 border-b border-slate-100">
+            <div id="importPanelBody" class="p-4 sm:p-6 border-b border-slate-100">
                 <div class="flex flex-col">
                     <div class="flex flex-wrap justify-between items-center mb-1.5 gap-2">
                         <label class="text-xs font-semibold text-slate-700">Paste 12-Column eAbacus DCB rows</label>
-                        <span class="text-[11px] font-mono text-slate-400">Sl | Date | Bill | Rcpt | Dues | Water | Adj | OthAdj | Surchg | Fine | Paid | Bal</span>
+                        <span class="text-[10px] sm:text-[11px] font-mono text-slate-400">Sl | Date | Bill | Rcpt | Dues | Water | Adj | OthAdj | Surchg | Fine | Paid | Bal</span>
                     </div>
-                    <textarea id="pasteInput" rows="4" placeholder="Paste 12-column tab-separated or comma-separated eAbacus DCB rows here..." 
+                    <textarea id="pasteInput" rows="3" placeholder="Paste 12-column tab-separated or comma-separated eAbacus DCB rows here..." 
                         class="w-full font-mono text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50/70"></textarea>
-                    <div class="mt-2.5 flex justify-between items-center">
+                    <div class="mt-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <span id="parseDiagnostics" class="text-xs text-slate-500">Ready to validate eAbacus DCB ledger records.</span>
-                        <button onclick="parsePastedData()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center gap-1.5">
+                        <button onclick="parsePastedData()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center gap-1.5 w-full sm:w-auto justify-center">
                             <i class="fa-solid fa-check-double"></i> Validate & Import Text
                         </button>
                     </div>
@@ -222,19 +233,19 @@
             </div>
 
             <!-- Validated Raw Data Table -->
-            <div id="tableSection" class="p-6 hidden">
+            <div id="tableSection" class="p-4 sm:p-6 hidden">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-md flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-check"></i> <span id="recordCount">0</span> Billing Entries Loaded
                         </span>
-                        <span class="text-xs text-slate-400" id="reconcileStatusBanner">Inline edits automatically update OTS calculations</span>
+                        <span class="text-xs text-slate-400 hidden sm:inline" id="reconcileStatusBanner">Inline edits automatically update OTS calculations</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="addNewRawRow()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 border border-slate-300">
                             <i class="fa-solid fa-plus text-blue-600"></i> Add Billing Row
                         </button>
-                        <button onclick="triggerOTSCalculation(true)" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                        <button onclick="triggerOTSCalculation(true)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
                             <i class="fa-solid fa-bolt"></i> Recalculate OTS Now
                         </button>
                     </div>
@@ -263,17 +274,17 @@
         </div>
 
         <!-- SECTION 3: Executive Summary Dashboard & Visual Analytics -->
-        <div id="summaryCard" class="hidden space-y-6">
+        <div id="summaryCard" class="hidden space-y-4 md:space-y-6">
             
             <!-- Dark Executive KPI Banner & Multi-Report Actions -->
-            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white rounded-2xl shadow-xl p-6 border border-slate-800 no-print">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white rounded-2xl shadow-xl p-4 sm:p-6 border border-slate-800 no-print">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4 sm:mb-6">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold uppercase tracking-widest text-blue-400">Executive Settlement Summary</span>
-                            <span id="activePeriodBadge" class="text-[11px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"></span>
+                            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-400">Executive Settlement Summary</span>
+                            <span id="activePeriodBadge" class="text-[10px] sm:text-[11px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"></span>
                         </div>
-                        <h2 class="text-2xl font-extrabold tracking-tight text-white mt-1">One-Time Settlement (OTS) Assessment</h2>
+                        <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight text-white mt-1">One-Time Settlement (OTS) Assessment</h2>
                     </div>
 
                     <!-- 4 Reports Print & PDF Controls -->
@@ -283,18 +294,39 @@
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
                                 <i class="fa-solid fa-print"></i> Print Reports
                             </span>
-                            <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
-                                <button onclick="printReport('schedule')" class="px-2 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="1. Print Detailed FY Schedule">
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                                <button onclick="printReport('schedule')" class="px-2.5 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="Print Detailed FY Schedule">
                                     Schedule
                                 </button>
-                                <button onclick="printReport('letter')" class="px-2 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="2. Print Full English Notice">
+                                <button onclick="printReport('letter')" class="px-2.5 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="Print Full English Notice">
                                     Notice (EN)
                                 </button>
-                                <button onclick="printReport('letter_ml')" class="px-2 py-1.5 hover:bg-slate-700 text-emerald-300 rounded-lg text-xs font-semibold transition" title="3. Print Malayalam Notice">
+                                <button onclick="printReport('letter_ml')" class="px-2.5 py-1.5 hover:bg-slate-700 text-emerald-300 rounded-lg text-xs font-semibold transition" title="Print Malayalam Notice">
                                     Notice (ML)
                                 </button>
-                                <button onclick="printReport('compact')" class="px-2 py-1.5 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition border border-amber-500/30" title="4. Print Compact Demand Notice">
-                                    Compact Notice
+                                <button onclick="printReport('compact')" class="px-2.5 py-1.5 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition" title="Print Compact Demand Notice">
+                                    Compact
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PDF Export Options -->
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                <i class="fa-solid fa-file-pdf text-rose-400"></i> Export PDF
+                            </span>
+                            <div class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                                <button onclick="downloadPDF('schedule')" class="px-2.5 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="Download Detailed FY Schedule PDF">
+                                    Schedule
+                                </button>
+                                <button onclick="downloadPDF('letter')" class="px-2.5 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="Download English Notice PDF">
+                                    Notice (EN)
+                                </button>
+                                <button onclick="downloadPDF('letter_ml')" class="px-2.5 py-1.5 hover:bg-slate-700 text-emerald-300 rounded-lg text-xs font-semibold transition" title="Download Malayalam Notice PDF">
+                                    Notice (ML)
+                                </button>
+                                <button onclick="downloadPDF('compact')" class="px-2.5 py-1.5 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition" title="Download Compact Notice PDF">
+                                    Compact
                                 </button>
                             </div>
                         </div>
@@ -302,84 +334,81 @@
                 </div>
 
                 <!-- 6 Metric Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
-                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">1. Current Balance (eAbacus)</span>
-                        <div class="text-2xl font-extrabold text-amber-400 mt-1 font-mono" id="sumCurrentBalance">₹0.00</div>
-                        <span class="text-[11px] text-slate-400">Closing balance in eAbacus</span>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+                    <div class="bg-slate-800/80 rounded-xl p-3 sm:p-4 border border-slate-700/70">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider block">1. Current Balance (eAbacus)</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-amber-400 mt-1 font-mono" id="sumCurrentBalance">₹0.00</div>
+                        <span class="text-[10px] text-slate-400 hidden sm:inline">Closing balance in eAbacus</span>
                     </div>
 
-                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
-                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">2. Current Fine (eAbacus)</span>
-                        <div class="text-2xl font-extrabold text-rose-400 mt-1 font-mono" id="sumCurrentFine">₹0.00</div>
-                        <span class="text-[11px] text-slate-400">Cumulative fine in eAbacus for the selected period</span>
+                    <div class="bg-slate-800/80 rounded-xl p-3 sm:p-4 border border-slate-700/70">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider block">2. Current Fine (eAbacus)</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-rose-400 mt-1 font-mono" id="sumCurrentFine">₹0.00</div>
+                        <span class="text-[10px] text-slate-400 hidden sm:inline">Cumulative fine in eAbacus for period</span>
                     </div>
 
-                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
-                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">3. OTS Principal Balance</span>
-                        <div class="text-2xl font-extrabold text-sky-400 mt-1 font-mono" id="sumOTSBalance">₹0.00</div>
-                        <span class="text-[11px] text-slate-400" id="otsBalanceSubtext">Net principal / arrear balance under OTS</span>
+                    <div class="bg-slate-800/80 rounded-xl p-3 sm:p-4 border border-slate-700/70">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider block">3. OTS Principal Balance</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-sky-400 mt-1 font-mono" id="sumOTSBalance">₹0.00</div>
+                        <span class="text-[10px] text-slate-400 hidden sm:inline" id="otsBalanceSubtext">Net principal / arrear balance under OTS</span>
                     </div>
 
-                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
-                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">4. Calculated OTS Fine</span>
-                        <div class="text-2xl font-extrabold text-emerald-400 mt-1 font-mono" id="sumOTSFine">₹0.00</div>
-                        <span class="text-[11px] text-slate-400" id="interestRateLabel">12% p.a. on Progressive Cumulative Sum</span>
+                    <div class="bg-slate-800/80 rounded-xl p-3 sm:p-4 border border-slate-700/70">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider block">4. Calculated OTS Fine</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-emerald-400 mt-1 font-mono" id="sumOTSFine">₹0.00</div>
+                        <span class="text-[10px] text-slate-400 hidden sm:inline" id="interestRateLabel">12% p.a. on Progressive Cumulative Sum</span>
                     </div>
 
-                    <div class="bg-emerald-950/50 rounded-xl p-4 border border-emerald-500/40">
+                    <div class="bg-emerald-950/50 rounded-xl p-3 sm:p-4 border border-emerald-500/40">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs text-emerald-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="text-[10px] sm:text-xs text-emerald-300 font-bold uppercase tracking-wider flex items-center gap-1">
                                 <i class="fa-solid fa-piggy-bank"></i> 5. Total OTS Benefit
                             </span>
-                            <span id="benefitPctBadge" class="text-[11px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">0% Saved</span>
+                            <span id="benefitPctBadge" class="text-[9px] sm:text-[11px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full font-bold">0% Saved</span>
                         </div>
-                        <div class="text-2xl font-extrabold text-emerald-300 mt-1 font-mono" id="sumOTSBenefit">₹0.00</div>
-                        <span class="text-[11px] text-emerald-300/80">Total Fine Savings + Surcharge Waivers</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-emerald-300 mt-1 font-mono" id="sumOTSBenefit">₹0.00</div>
+                        <span class="text-[10px] text-emerald-300/80 hidden sm:inline">Total Fine Savings + Surcharge Waivers</span>
                     </div>
 
-                    <div class="bg-blue-950/70 rounded-xl p-4 border border-blue-500/60 shadow-inner">
-                        <span class="text-xs text-blue-300 font-bold uppercase tracking-wider block flex items-center gap-1.5">
+                    <div class="bg-blue-950/70 rounded-xl p-3 sm:p-4 border border-blue-500/60 shadow-inner">
+                        <span class="text-[10px] sm:text-xs text-blue-300 font-bold uppercase tracking-wider block flex items-center gap-1">
                             <i class="fa-solid fa-file-invoice-dollar"></i> 6. Net Payable Amount under OTS
                         </span>
-                        <div class="text-2xl font-extrabold text-white mt-1 font-mono" id="sumPayableOTS">₹0.00</div>
-                        <span class="text-[11px] text-blue-200/90" id="payableSubtext">Formula: OTS Balance + OTS Fine</span>
+                        <div class="text-base sm:text-2xl font-extrabold text-white mt-1 font-mono" id="sumPayableOTS">₹0.00</div>
+                        <span class="text-[10px] text-blue-200/90 hidden sm:inline" id="payableSubtext">Formula: OTS Balance + OTS Fine</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Visual Analytics & Installment Simulator Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-                <!-- Chart 1: Fine & Payable Comparison -->
-                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
+            <!-- Visual Analytics Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 no-print">
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-blue-600"></i> Fine & Payable Comparison
                     </h3>
-                    <div class="h-56 relative">
+                    <div class="h-48 sm:h-56 relative">
                         <canvas id="comparisonChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Chart 2: FY-Wise Progressive Balance & OTS Interest Trend -->
-                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-chart-line text-indigo-600"></i> FY Progressive Sum & OTS Fine
                     </h3>
-                    <div class="h-56 relative">
+                    <div class="h-48 sm:h-56 relative">
                         <canvas id="fyTrendChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Installment Plan -->
-                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 flex flex-col justify-between">
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                                 <i class="fa-solid fa-calendar-check text-emerald-600"></i> Installment plan
                             </h3>
-                            <span id="installmentBadge" class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">Lump Sum</span>
+                            <span id="installmentBadge" class="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">Lump Sum</span>
                         </div>
-                        <div class="overflow-y-auto max-h-44 border border-slate-100 rounded-lg">
+                        <div class="overflow-y-auto max-h-40 border border-slate-100 rounded-lg">
                             <table class="w-full text-xs text-left">
                                 <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b">
                                     <tr>
@@ -392,13 +421,13 @@
                             </table>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-3 italic">Adjust installment count in Section 1 to simulate split payments.</p>
+                    <p class="text-[10px] text-slate-400 mt-2 italic">Adjust installment count in Section 1 to simulate split payments.</p>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 4: Detailed FY Schedules & Printable Outputs -->
-        <div id="otsReportCard" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-6 card">
+        <div id="otsReportCard" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-6 card">
 
             <!-- REPORT 1: Standard Calculation Schedule -->
             <div id="printScheduleSection">
@@ -429,29 +458,29 @@
                 </div>
 
                 <!-- Interactive Controls for FY Schedules -->
-                <div class="flex flex-wrap justify-between items-center gap-4 mb-5 no-print border-b border-slate-100 pb-4">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4 no-print border-b border-slate-100 pb-3">
                     <div>
-                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-table-list text-blue-600"></i> Financial Year-Wise Progressive Schedules
                         </h2>
                         <p class="text-xs text-slate-500">Click any Financial Year bar to expand or collapse its 12-month ledger</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer bg-slate-100 px-3 py-1.5 rounded-lg">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer bg-slate-100 px-2.5 py-1.5 rounded-lg">
                             <input type="checkbox" id="activeMonthsOnlyToggle" checked onchange="renderFYSchedules()" class="rounded text-blue-600">
                             <span>Show Active Event Months Only</span>
                         </label>
-                        <button onclick="toggleAllFYSchedules(true)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                        <button onclick="toggleAllFYSchedules(true)" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
                             <i class="fa-solid fa-angles-down mr-1"></i> Expand All
                         </button>
-                        <button onclick="toggleAllFYSchedules(false)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                        <button onclick="toggleAllFYSchedules(false)" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
                             <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
                         </button>
                     </div>
                 </div>
 
                 <!-- FY Schedules Container -->
-                <div id="fySchedulesContainer" class="space-y-4"></div>
+                <div id="fySchedulesContainer" class="space-y-3"></div>
 
                 <!-- Signature Block for Print -->
                 <div class="print-only mt-16 pt-8 border-t border-slate-300 grid grid-cols-3 gap-8 text-center text-xs">
@@ -472,9 +501,9 @@
 
             <!-- REPORT 2: Official English Detailed OTS Notice -->
             <div id="printLetterSection" class="hidden">
-                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-5 bg-white">
-                    <div class="text-center border-b-2 border-slate-800 pb-4">
-                        <h1 class="text-lg font-extrabold uppercase tracking-wide">Kerala Water Authority</h1>
+                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
+                    <div class="text-center border-b-2 border-slate-800 pb-3">
+                        <h1 class="text-base sm:text-lg font-extrabold uppercase tracking-wide">Kerala Water Authority</h1>
                         <p class="text-xs text-slate-700 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
                         <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="letterCircularRef" class="font-mono font-semibold"></span></p>
                     </div>
@@ -548,14 +577,14 @@
 
                     <p class="text-xs leading-relaxed">Please remit the payable amount within the stipulated due dates to avail the OTS waiver benefit. Failure to remit the settlement installments within the timeline will result in automatic cancellation of the OTS concession.</p>
 
-                    <div class="pt-14 grid grid-cols-2 gap-8 text-xs">
+                    <div class="pt-10 grid grid-cols-2 gap-8 text-xs">
                         <div>
                             <p class="font-semibold">Consumer Acknowledgment:</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">Signature & Date</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44">Signature & Date</p>
                         </div>
                         <div class="text-right">
                             <p class="font-semibold">For Kerala Water Authority</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">Authorized Signatory</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44 text-center">Authorized Signatory</p>
                         </div>
                     </div>
                 </div>
@@ -563,9 +592,9 @@
 
             <!-- REPORT 3: Official Malayalam OTS Notice -->
             <div id="printLetterMalayalamSection" class="hidden font-malayalam">
-                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-5 bg-white">
-                    <div class="text-center border-b-2 border-slate-800 pb-4">
-                        <h1 class="text-lg font-extrabold tracking-wide">കേരള വാട്ടർ അതോറിറ്റി</h1>
+                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
+                    <div class="text-center border-b-2 border-slate-800 pb-3">
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-wide">കേരള വാട്ടർ അതോറിറ്റി</h1>
                         <p class="text-xs text-slate-700 font-bold mt-1">ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതി (OTS) അനുമതിയും ഡിമാൻഡ് നോട്ടീസും</p>
                         <p class="text-xs text-slate-600 mt-1">റഫറൻസ് സർക്കുലർ: <span id="mlLetterCircularRef" class="font-mono font-semibold"></span></p>
                     </div>
@@ -639,14 +668,14 @@
 
                     <p class="text-xs leading-relaxed">ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതിയുടെ ഇളവ് ലഭിക്കുന്നതിനായി മുകളിൽ കാണിച്ചിരിക്കുന്ന നിശ്ചിത തീയതികൾക്കുള്ളിൽ തുക അടയ്ക്കേണ്ടതാണ്. നിശ്ചിത സമയപരിധിക്കുള്ളിൽ തുക അടയ്ക്കാത്തപക്ഷം OTS ആനുകൂല്യം സ്വമേധയാ റദ്ദാക്കപ്പെടുന്നതാണ്.</p>
 
-                    <div class="pt-14 grid grid-cols-2 gap-8 text-xs">
+                    <div class="pt-10 grid grid-cols-2 gap-8 text-xs">
                         <div>
                             <p class="font-semibold">ഉപഭോക്താവിന്റെ കൈപ്പറ്റൽ:</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">ഒപ്പും തീയതിയും</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44">ഒപ്പും തീയതിയും</p>
                         </div>
                         <div class="text-right">
                             <p class="font-semibold">കേരള വാട്ടർ അതോറിറ്റിക്ക് വേണ്ടി</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">അധികാരപ്പെടുത്തിയ ഉദ്യോഗസ്ഥൻ</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44 text-center">അധികാരപ്പെടുത്തിയ ഉദ്യോഗസ്ഥൻ</p>
                         </div>
                     </div>
                 </div>
@@ -656,7 +685,7 @@
             <div id="printCompactLetterSection" class="hidden">
                 <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
                     <div class="text-center border-b-2 border-slate-800 pb-3">
-                        <h1 class="text-lg font-extrabold uppercase tracking-wide">KERALA WATER AUTHORITY</h1>
+                        <h1 class="text-base sm:text-lg font-extrabold uppercase tracking-wide">KERALA WATER AUTHORITY</h1>
                         <p class="text-xs text-slate-800 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
                         <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="compactCircularRef" class="font-mono font-semibold">-</span></p>
                     </div>
@@ -720,14 +749,14 @@
 
                     <p class="text-xs leading-relaxed pt-1">Please remit the payable amount within the stipulated due dates to avail the OTS waiver benefit. Failure to remit the settlement installments within the timeline will result in automatic cancellation of the OTS concession.</p>
 
-                    <div class="pt-12 grid grid-cols-2 gap-8 text-xs">
+                    <div class="pt-10 grid grid-cols-2 gap-8 text-xs">
                         <div>
                             <p class="font-semibold">Consumer Acknowledgment:</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">Signature & Date</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44">Signature & Date</p>
                         </div>
                         <div class="text-right">
                             <p class="font-semibold">For Kerala Water Authority</p>
-                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">Authorized Signatory</p>
+                            <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44 text-center">Authorized Signatory</p>
                         </div>
                     </div>
                 </div>
@@ -1157,7 +1186,7 @@
             document.getElementById('sumPayableOTS').innerText = formatCurrency(payableAmountOTS);
 
             const waiverNote = interestWaiverPct > 0 ? ` (after ${interestWaiverPct}% waiver)` : '';
-            document.getElementById('interestRateLabel').innerText = `${annualRate}% p.a. on Progressive Sum${waiverNote}`;
+            document.getElementById('interestRateLabel').innerText = `${annualRate}% p.a. on Progressive Cumulative Sum${waiverNote}`;
             document.getElementById('otsBalanceSubtext').innerText = surchargeWaiverPct > 0
                 ? `Principal balance (${surchargeWaiverPct}% Surcharge Waived)`
                 : 'Net principal / arrear balance under OTS';
