@@ -4,24 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pre RR letters - KWA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         @import url('https://smc.org.in/fonts/gayathri.css');
-        * { box-sizing: border-box; font-family: 'Gayathri', sans-serif; }
-        body { background-color: #f8fafc; margin: 0; padding: 16px; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 4px solid #004488; }
-        h2 { margin-top: 0; color: #004488; font-size: 20px; }
-        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-bottom: 15px; }
-        .col-4 { grid-column: span 12; }
-        @media(min-width: 768px) { .col-4 { grid-column: span 4; } }
-        .col-6 { grid-column: span 12; }
-        @media(min-width: 768px) { .col-6 { grid-column: span 6; } }
-        .col-8 { grid-column: span 12; }
-        @media(min-width: 768px) { .col-8 { grid-column: span 8; } }
-        .col-12 { grid-column: span 12; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #555; text-transform: uppercase; }
-        .form-group input, .form-group textarea, .form-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; font-family: 'Gayathri', sans-serif; background-color: #fff; width: 100%; }
-        .btn { background-color: #004488; color: white; padding: 9px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body { background-color: #f8fafc; margin: 0; padding: 12px; color: #333; font-family: 'Inter', 'Gayathri', sans-serif; }
+        .font-malayalam { font-family: 'Gayathri', sans-serif; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         .letter-page {
             background: white;
             width: 100%;
@@ -29,24 +23,86 @@
             min-height: 297mm;
             padding: 12mm 18mm;
             margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             font-size: 15px;
             line-height: 1.45;
             color: #000;
             position: relative;
             box-sizing: border-box;
             border-radius: 4px;
+            font-family: 'Gayathri', sans-serif;
         }
-        .official-header { width: 100%; margin-bottom: 8px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .header-left-info { font-size: 11px; line-height: 1.25; text-align: left; }
-        .header-center-logo { text-align: center; flex-grow: 1; padding: 0 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo-box { width: 55px; height: 55px; margin: 0 auto 2px auto; }
-        .logo-box img { width: 100%; height: auto; object-fit: contain; }
-        .kwa-title-ml { font-size: 18px; font-weight: bold; margin-bottom: 1px; text-align: center; width: 100%; }
-        .office-sub-title { font-size: 13.5px; font-weight: bold; line-height: 1.25; text-align: center; width: 100%; }
-        .header-right-info { font-size: 11px; line-height: 1.25; text-align: right; }
-        .file-date-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 10px; font-size: 14px; font-weight: bold; flex-wrap: wrap; gap: 4px; }
+
+        .official-header {
+            width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+        }
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-left-info {
+            font-size: 11px;
+            line-height: 1.3;
+            text-align: left;
+            width: 28%;
+        }
+        .header-center-logo {
+            text-align: center;
+            flex-grow: 1;
+            padding: 0 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-box {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 2px auto;
+        }
+        .logo-box img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        .kwa-title-ml {
+            font-size: 17px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+        }
+        .office-sub-title {
+            font-size: 12.5px;
+            font-weight: bold;
+            line-height: 1.25;
+            text-align: center;
+            width: 100%;
+        }
+        .header-right-info {
+            font-size: 11px;
+            line-height: 1.3;
+            text-align: right;
+            width: 28%;
+            word-break: break-word;
+        }
+
+        .file-date-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
         .address-section { margin-bottom: 10px; }
         .address-block { margin-bottom: 6px; }
         .ref-subject { margin-left: 20px; margin-top: 6px; margin-bottom: 10px; }
@@ -58,91 +114,131 @@
         .copy-to-block ol { margin-top: 3px; padding-left: 20px; }
         .copy-to-block li { margin-bottom: 3px; }
         .field-val { font-weight: bold; }
+
+        @media (max-width: 640px) {
+            .header-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 6px;
+            }
+            .header-left-info, .header-right-info {
+                width: 100%;
+                text-align: center;
+                font-size: 10px;
+            }
+            .letter-page {
+                padding: 16px 12px !important;
+                font-size: 13.5px !important;
+                min-height: auto;
+            }
+            .ref-subject { margin-left: 5px; }
+        }
+
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
             body { background: none; padding: 0 !important; }
             .no-print { display: none !important; }
             .max-w-5xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
             .letter-page { box-shadow: none; width: 100%; min-height: 277mm; padding: 5mm 10mm; margin: 0; }
+            .header-flex { flex-direction: row !important; }
+            .header-left-info { width: 28% !important; text-align: left !important; }
+            .header-right-info { width: 28% !important; text-align: right !important; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-4 md:p-6">
+<body class="p-3 md:p-6 selection:bg-purple-600 selection:text-white">
 
-<div class="max-w-5xl mx-auto space-y-6">
-    <div class="bg-slate-950 text-white rounded-2xl shadow-xl p-4 no-print flex flex-col lg:flex-row justify-between items-center gap-4 border border-slate-800">
-        <div class="flex items-center gap-3">
-            <a href="index.html" class="bg-purple-600 hover:bg-purple-500 p-2.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
-                <i class="fa-solid fa-house"></i> <span>Home</span>
-            </a>
+<div class="max-w-5xl mx-auto space-y-4 md:space-y-6">
+    <!-- MOBILE-OPTIMIZED TOP BAR -->
+    <header class="bg-slate-950 text-white rounded-2xl shadow-xl p-3 md:p-4 no-print border border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <a href="index.html" class="bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                        <i class="fa-solid fa-house"></i> <span>Home</span>
+                    </a>
+                    <span class="text-xs font-bold text-slate-300">Pre RR Notice</span>
+                </div>
+                <div class="flex items-center gap-1.5 sm:hidden">
+                    <button onclick="window.print()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg"><i class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <!-- Scrollable Nav Tabs -->
+            <nav class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 text-xs font-semibold whitespace-nowrap">
+                <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear Letters</a>
+                <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter Faulty</a>
+                <a href="ots.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">One Time Settlement</a>
+                <a href="prerr.html" class="px-3 py-1.5 bg-purple-600 text-white rounded-lg shadow">Pre RR</a>
+                <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calculator</a>
+            </nav>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold">
-            <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
-            <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter faulty letters</a>
-            <a href="ots.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">One Time Settlement</a>
-            <a href="prerr.html" class="px-3 py-1.5 bg-purple-600 text-white rounded-lg shadow">Pre RR letters</a>
-            <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
+    </header>
+
+    <!-- CONTROL PANEL -->
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 md:p-6 no-print space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3 flex-wrap gap-2">
+            <h2 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-purple-600"></i> Pre-RR Notice Generator
+            </h2>
+            <button class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow transition" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> Print A4 PDF
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4">
+            <div class="md:col-span-12 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Paste Excel Row</label>
+                <textarea id="pastedRow" rows="2" placeholder="Paste tab-separated row..." class="p-2.5 sm:p-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none font-mono" oninput="parsePastedRow()"></textarea>
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Sub Division Name & Place</label>
+                <input type="text" id="subDivision" placeholder="Thiruvalla" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">File Number</label>
+                <input type="text" id="fileNo" placeholder="File No" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Office Email ID</label>
+                <input type="email" id="emailId" placeholder="Email" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Date (തീയതി)</label>
+                <input type="text" id="letterDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Consumer No</label>
+                <input type="text" id="consumerNo" placeholder="Consumer No" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Phone</label>
+                <input type="text" id="consumerPhone" placeholder="Phone" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Arrears (തുക)</label>
+                <input type="text" id="arrearsAmount" placeholder="Amount" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Disconnection Date</label>
+                <input type="text" id="disconnDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-8 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Consumer Address</label>
+                <textarea id="consumerAddress" rows="1" placeholder="Address" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></textarea>
+            </div>
+            <div class="md:col-span-6 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">പകർപ്പ് 1 (Copy 1)</label>
+                <input type="text" id="copyText1" placeholder="Copy 1" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-6 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">പകർപ്പ് 2 (Copy 2)</label>
+                <input type="text" id="copyText2" placeholder="Copy 2" oninput="saveAndPreview()" class="p-2 sm:p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
         </div>
     </div>
 
-    <div class="card no-print">
-        <h2>Pre-RR Notice Generator</h2>
-        <div class="form-grid">
-            <div class="form-group col-12">
-                <label>Paste Excel Row</label>
-                <textarea id="pastedRow" rows="2" placeholder="Paste a tab-separated row..." oninput="parsePastedRow()"></textarea>
-            </div>
-            <div class="form-group col-4">
-                <label>Sub Division Name & Place</label>
-                <input type="text" id="subDivision" placeholder="Thiruvalla" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>File Number</label>
-                <input type="text" id="fileNo" placeholder="File No" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Office Email ID</label>
-                <input type="email" id="emailId" placeholder="Email" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Date (തീയതി)</label>
-                <input type="text" id="letterDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Consumer No</label>
-                <input type="text" id="consumerNo" placeholder="Consumer No" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Phone</label>
-                <input type="text" id="consumerPhone" placeholder="Phone" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Arrears (തുക)</label>
-                <input type="text" id="arrearsAmount" placeholder="Amount" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-4">
-                <label>Disconnection Date</label>
-                <input type="text" id="disconnDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-8">
-                <label>Consumer Address</label>
-                <textarea id="consumerAddress" rows="1" placeholder="Address" oninput="saveAndPreview()"></textarea>
-            </div>
-            <div class="form-group col-6">
-                <label>പകർപ്പ് 1 (Copy 1)</label>
-                <input type="text" id="copyText1" placeholder="Copy 1" oninput="saveAndPreview()">
-            </div>
-            <div class="form-group col-6">
-                <label>പകർപ്പ് 2 (Copy 2)</label>
-                <input type="text" id="copyText2" placeholder="Copy 2" oninput="saveAndPreview()">
-            </div>
-        </div>
-        <button class="btn" onclick="window.print()" style="float: right;"><i class="fa-solid fa-print mr-1"></i> Print / Export A4 PDF</button>
-        <div style="clear: both;"></div>
-    </div>
-
+    <!-- PREVIEW AREA -->
     <div class="letter-page">
         <div class="official-header">
             <div class="header-flex">
