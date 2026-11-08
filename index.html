@@ -1,219 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kerala Water Authority - Digital Office Suite</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06161f">
+<title>Digital Office Suite</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #06161f;
+    --ink: #eaf6fa;
+    --muted: #8fb0bd;
+    --glass: rgba(255,255,255,.06);
+    --edge: rgba(255,255,255,.12);
+    --gap: clamp(8px, 2.2vw, 14px);
+  }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 60% at 100% 0%, rgba(34,211,238,.20), transparent 60%),
+      radial-gradient(90% 50% at 0% 100%, rgba(99,102,241,.22), transparent 60%),
+      var(--bg);
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  /* Header */
+  header {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 16px 8px; flex: none;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 14px; flex: none;
+    display: grid; place-items: center; color: #fff; font-size: 18px;
+    background: linear-gradient(145deg, #22d3ee, #3b82f6 60%, #6366f1);
+    box-shadow: 0 8px 22px -6px rgba(34,211,238,.55), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .brand h1 { font-size: 1.12rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .brand p { font-size: .72rem; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gear {
+    width: 42px; height: 42px; border-radius: 14px; flex: none; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--edge); color: var(--ink); font-size: 16px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: transform .25s ease, background .2s;
+  }
+  .gear:active { transform: rotate(60deg) scale(.94); background: rgba(255,255,255,.12); }
+
+  /* Greeting strip */
+  .lead { padding: 4px 18px 10px; flex: none; }
+  .lead h2 { font-size: clamp(1.25rem, 6vw, 1.7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+  .lead h2 span { color: #67e8f9; }
+  .lead p { font-size: .78rem; color: var(--muted); margin-top: 4px; }
+
+  /* Bento grid fills remaining height, never scrolls */
+  main {
+    flex: 1; min-height: 0;
+    display: grid; gap: var(--gap);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1.15fr 1fr 1fr;
+    padding: 4px 14px 10px;
+  }
+  .tile {
+    --c: #22d3ee;
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: clamp(12px, 3.4vw, 18px);
+    border-radius: 24px; text-decoration: none; color: inherit; min-height: 0;
+    background:
+      radial-gradient(130% 90% at 100% 0%, color-mix(in srgb, var(--c) 30%, transparent), transparent 62%),
+      var(--glass);
+    border: 1px solid var(--edge);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 30px -18px rgba(0,0,0,.8);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .tile:active { transform: scale(.97); border-color: var(--c); }
+  .tile:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+  .tile.wide { grid-column: 1 / -1; }
+  /* Large faded icon as a watermark */
+  .tile .mark {
+    position: absolute; right: -6px; bottom: -14px; z-index: -1;
+    font-size: clamp(64px, 22vw, 104px); color: var(--c); opacity: .13; transform: rotate(-12deg);
+  }
+  .ico {
+    width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-size: 17px;
+    color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+  }
+  .wide .ico { width: 46px; height: 46px; font-size: 20px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .go {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 11px;
+    background: rgba(255,255,255,.08); color: var(--ink); transition: background .2s, color .2s, transform .2s;
+  }
+  .tile:active .go { background: var(--c); color: #04141c; transform: translateX(2px); }
+  .tile h3 { font-size: clamp(.92rem, 4vw, 1.05rem); font-weight: 800; letter-spacing: -.015em; line-height: 1.2; }
+  .wide h3 { font-size: clamp(1.1rem, 5vw, 1.3rem); }
+  .tile p { font-size: clamp(.68rem, 2.9vw, .78rem); line-height: 1.4; color: var(--muted); margin-top: 4px; max-width: 34ch; }
+
+  /* Footer */
+  footer {
+    flex: none; text-align: center; font-size: .68rem; line-height: 1.45; color: var(--muted);
+    padding: 8px 16px 12px; border-top: 1px solid rgba(255,255,255,.07);
+  }
+  footer b { color: var(--ink); font-weight: 700; }
+  footer a { color: #67e8f9; font-weight: 700; text-decoration: none; }
+
+  /* Settings bottom sheet */
+  .sheet {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(2,10,15,.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity .25s ease;
+  }
+  .sheet.open { opacity: 1; pointer-events: auto; }
+  .panel {
+    width: 100%; max-width: 460px; padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    background: #0b2230; border: 1px solid var(--edge); border-bottom: 0; border-radius: 28px 28px 0 0;
+    transform: translateY(100%); transition: transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .sheet.open .panel { transform: none; }
+  .grab { width: 38px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.2); margin: 0 auto 14px; }
+  .panel h4 { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .panel h4 i { color: #67e8f9; }
+  .panel > p { font-size: .75rem; color: var(--muted); margin: 6px 0 12px; line-height: 1.45; }
+  label { display: block; font-size: .72rem; font-weight: 700; color: #c5dde6; margin: 10px 0 5px; }
+  input {
+    width: 100%; font: inherit; font-size: 16px; /* 16px stops iOS zoom */
+    padding: 11px 13px; color: var(--ink); background: rgba(255,255,255,.05);
+    border: 1px solid var(--edge); border-radius: 13px; outline: none;
+  }
+  input:focus { border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34,211,238,.18); }
+  .actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-top: 16px; }
+  .btn { font: inherit; font-weight: 700; font-size: .85rem; padding: 12px; border-radius: 14px; border: 0; cursor: pointer; }
+  .btn.ghost { background: rgba(255,255,255,.07); color: var(--ink); }
+  .btn.solid { background: linear-gradient(135deg, #22d3ee, #3b82f6); color: #04141c; }
+
+  /* Larger screens: 3-up bento */
+  @media (min-width: 720px) {
+    main { max-width: 1000px; width: 100%; margin: 0 auto; grid-template-columns: repeat(6, 1fr); grid-template-rows: 1fr 1fr; padding: 8px 24px 16px; }
+    .tile { grid-column: span 2; }
+    .tile.wide { grid-column: span 2; }
+    .tile:nth-child(4), .tile:nth-child(5) { grid-column: span 3; }
+    header, .lead { max-width: 1000px; width: 100%; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+    .sheet { align-items: center; } .panel { border-radius: 28px; border-bottom: 1px solid var(--edge); }
+  }
+  /* Very short phones: tighten so everything still fits */
+  @media (max-height: 640px) {
+    .lead p, .tile p { display: none; }
+    .lead { padding-bottom: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen min-h-[100dvh] flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body>
 
-    <!-- COMPACT TOP HEADER BAR -->
-    <header class="bg-slate-950 border-b border-slate-800 shadow-md shrink-0">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2 sm:py-3 flex justify-between items-center gap-2">
-            <div class="flex items-center space-x-2">
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-1.5 sm:p-2 rounded-lg shadow-md shadow-blue-600/30 border border-blue-400/30 text-white">
-                    <i class="fa-solid fa-building-columns text-sm sm:text-base"></i>
-                </div>
-                <div>
-                    <span class="px-2 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full">Apps4KWA</span>
-                </div>
-            </div>
-
-            <!-- Office Config Modal Trigger / Badge -->
-            <div class="flex items-center gap-2">
-                <div id="officeConfigBadge" class="hidden md:flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1 rounded-xl text-xs text-slate-300">
-                    <i class="fa-solid fa-location-dot text-amber-400 text-xs"></i>
-                    <span id="badgeOfficeName">Sub Division:</span>
-                </div>
-                <button onclick="openConfigModal()" class="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-gear text-xs"></i> <span>Settings</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- PORTAL DIRECTORY: Dynamically sizes to fit screen cleanly -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-2.5 sm:py-4 flex flex-col justify-center">
-        
-        <!-- APP CARDS GRID: 2 columns, compact padding and height to prevent screen overflow -->
-        <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 w-full">
-
-            <!-- Card 1: Tariff Calculator -->
-            <a href="tariff.html" class="group bg-slate-950 border border-slate-800 hover:border-cyan-500/60 rounded-xl p-2 sm:p-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <div class="bg-cyan-600/20 text-cyan-400 p-1.5 sm:p-2 rounded-lg border border-cyan-500/30 group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-calculator text-sm sm:text-lg"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xs sm:text-base font-bold text-white group-hover:text-cyan-400 transition-colors leading-tight">Tariff Calculator</h3>
-                    <p class="hidden md:block text-[11px] text-slate-400 mt-1 leading-snug">
-                        Proportional multi-period KWA water tariff calculator across all revision slabs.
-                    </p>
-                </div>
-                <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
-                    <span>Open</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- Card 2: One Time Settlement -->
-            <a href="ots.html" class="group bg-slate-950 border border-slate-800 hover:border-emerald-500/60 rounded-xl p-2 sm:p-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <div class="bg-emerald-600/20 text-emerald-400 p-1.5 sm:p-2 rounded-lg border border-emerald-500/30 group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-handshake-angle text-sm sm:text-lg"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xs sm:text-base font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">One Time Settlement</h3>
-                    <p class="hidden md:block text-[11px] text-slate-400 mt-1 leading-snug">
-                        Progressive monthly balance, waiver & installment calculation engine.
-                    </p>
-                </div>
-                <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-emerald-400 group-hover:text-emerald-300">
-                    <span>Open</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- Card 3: Consumer Arrear Letters -->
-            <a href="consumer.html" class="group bg-slate-950 border border-slate-800 hover:border-blue-500/60 rounded-xl p-2 sm:p-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <div class="bg-blue-600/20 text-blue-400 p-1.5 sm:p-2 rounded-lg border border-blue-500/30 group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-file-invoice-dollar text-sm sm:text-lg"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xs sm:text-base font-bold text-white group-hover:text-blue-400 transition-colors leading-tight">Arrear letters to Consumers</h3>
-                    <p class="hidden md:block text-[11px] text-slate-400 mt-1 leading-snug">
-                        Generate official A4 arrear demand notices for defaulting water consumers.
-                    </p>
-                </div>
-                <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-blue-400 group-hover:text-blue-300">
-                    <span>Open</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- Card 4: Meter Faulty Letters -->
-            <a href="mfaulty.html" class="group bg-slate-950 border border-slate-800 hover:border-amber-500/60 rounded-xl p-2 sm:p-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <div class="bg-amber-600/20 text-amber-400 p-1.5 sm:p-2 rounded-lg border border-amber-500/30 group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-triangle-exclamation text-sm sm:text-lg"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xs sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors leading-tight">Meter faulty letters</h3>
-                    <p class="hidden md:block text-[11px] text-slate-400 mt-1 leading-snug">
-                        Issue notices for defective and non-working water meters with etapp link.
-                    </p>
-                </div>
-                <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-amber-400 group-hover:text-amber-300">
-                    <span>Open</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-            <!-- Card 5: Pre RR Letters -->
-            <a href="prerr.html" class="group bg-slate-950 border border-slate-800 hover:border-purple-500/60 rounded-xl p-2 sm:p-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between col-span-2 lg:col-span-1">
-                <div>
-                    <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <div class="bg-purple-600/20 text-purple-400 p-1.5 sm:p-2 rounded-lg border border-purple-500/30 group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-file-shield text-sm sm:text-lg"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xs sm:text-base font-bold text-white group-hover:text-purple-400 transition-colors leading-tight">Pre RR letters</h3>
-                    <p class="hidden md:block text-[11px] text-slate-400 mt-1 leading-snug">
-                        Pre-Revenue Recovery notices for disconnected water connections.
-                    </p>
-                </div>
-                <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-purple-400 group-hover:text-purple-300">
-                    <span>Open</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </a>
-
-        </div>
-
-    </main>
-
-    <!-- COMPACT FOOTER (Always visible with shrink-0) -->
-    <footer class="w-full text-center py-2 px-2 border-t border-slate-800 text-[10px] sm:text-xs text-slate-400 bg-slate-950 shrink-0 leading-tight">
-        Designed and developed by <span class="font-bold text-slate-200">Bipin Joseph, Jr.Supdt</span>. Please whatsapp your suggestions to <a href="https://wa.me/919961900910" class="text-blue-400 hover:text-blue-300 font-bold underline transition-colors">9961900910</a>.
-    </footer>
-
-    <!-- OFFICE CONFIGURATION MODAL -->
-    <div id="configModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                <h3 class="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
-                    <i class="fa-solid fa-building text-blue-400"></i> Office & Browser Memory Configuration
-                </h3>
-                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-[11px] text-slate-400">Enter your Sub Division details below. These are saved in your browser memory and automatically applied across all tools.</p>
-            
-            <div class="space-y-2.5">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Sub Division Name & Place</label>
-                    <input type="text" id="cfgSubDiv" value="Thiruvalla" class="w-full text-xs px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Default File Number Prefix</label>
-                    <input type="text" id="cfgFileNo" value="KWA/PHSD/TVLA/" class="w-full text-xs px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Office Email ID</label>
-                    <input type="email" id="cfgEmail" value="kwaphsdtvla@gmail.com" class="w-full text-xs px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-white outline-none focus:border-blue-500">
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-2.5 border-t border-slate-800">
-                <button onclick="closeConfigModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancel</button>
-                <button onclick="saveOfficeConfig()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow">Save Settings</button>
-            </div>
-        </div>
+<header>
+  <div class="brand">
+    <div class="logo"><i class="fa-solid fa-droplet"></i></div>
+    <div>
+      <h1>Apps4KWA</h1>
+      <p id="badgeOfficeName">Digital Office Suite</p>
     </div>
+  </div>
+  <button class="gear" onclick="openConfigModal()" aria-label="Settings"><i class="fa-solid fa-gear"></i></button>
+</header>
 
-    <script>
-        function loadConfig() {
-            const saved = localStorage.getItem('kwa_office_config');
-            if (saved) {
-                try {
-                    const cfg = JSON.parse(saved);
-                    document.getElementById('badgeOfficeName').innerText = `Sub Division: ${cfg.subDiv || ''}`;
-                    document.getElementById('cfgSubDiv').value = cfg.subDiv || 'Thiruvalla';
-                    document.getElementById('cfgFileNo').value = cfg.fileNo || 'KWA/PHSD/TVLA/';
-                    document.getElementById('cfgEmail').value = cfg.email || 'kwaphsdtvla@gmail.com';
-                } catch(e) {}
-            } else {
-                document.getElementById('badgeOfficeName').innerText = `Sub Division:`;
-            }
-        }
-        function openConfigModal() { document.getElementById('configModal').classList.remove('hidden'); }
-        function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
-        function saveOfficeConfig() {
-            const cfg = {
-                subDiv: document.getElementById('cfgSubDiv').value.trim(),
-                fileNo: document.getElementById('cfgFileNo').value.trim(),
-                email: document.getElementById('cfgEmail').value.trim()
-            };
-            localStorage.setItem('kwa_office_config', JSON.stringify(cfg));
-            loadConfig();
-            closeConfigModal();
-        }
-        window.onload = loadConfig;
-    </script>
+<section class="lead">
+ 
+  <p>Pick a tool to calculate dues or issue notices.</p>
+</section>
+
+<main>
+  <a class="tile wide" href="tariff.html" style="--c:#22d3ee">
+    <i class="fa-solid fa-calculator mark"></i>
+    <div class="top"><div class="ico"><i class="fa-solid fa-calculator"></i></div><span class="go"><i class="fa-solid fa-arrow-right"></i></span></div>
+    <div>
+      <h3>Tariff Calculator</h3>
+      <p>Proportional multi-period KWA water tariff calculation across all revision slabs.</p>
+    </div>
+  </a>
+
+  <a class="tile" href="ots.html" style="--c:#34d399">
+    <i class="fa-solid fa-handshake-angle mark"></i>
+    <div class="top"><div class="ico"><i class="fa-solid fa-handshake-angle"></i></div><span class="go"><i class="fa-solid fa-arrow-right"></i></span></div>
+    <div>
+      <h3>One Time Settlement</h3>
+      <p>Monthly balance, waiver and installment calculator.</p>
+    </div>
+  </a>
+
+  <a class="tile" href="consumer.html" style="--c:#60a5fa">
+    <i class="fa-solid fa-file-invoice-dollar mark"></i>
+    <div class="top"><div class="ico"><i class="fa-solid fa-file-invoice-dollar"></i></div><span class="go"><i class="fa-solid fa-arrow-right"></i></span></div>
+    <div>
+      <h3>Arrear letters to Consumers</h3>
+      <p>Official A4 demand notices for defaulters.</p>
+    </div>
+  </a>
+
+  <a class="tile" href="mfaulty.html" style="--c:#fbbf24">
+    <i class="fa-solid fa-triangle-exclamation mark"></i>
+    <div class="top"><div class="ico"><i class="fa-solid fa-triangle-exclamation"></i></div><span class="go"><i class="fa-solid fa-arrow-right"></i></span></div>
+    <div>
+      <h3>Meter faulty letters</h3>
+      <p>Notices for defective meters with e-tapp link.</p>
+    </div>
+  </a>
+
+  <a class="tile" href="prerr.html" style="--c:#c084fc">
+    <i class="fa-solid fa-file-shield mark"></i>
+    <div class="top"><div class="ico"><i class="fa-solid fa-file-shield"></i></div><span class="go"><i class="fa-solid fa-arrow-right"></i></span></div>
+    <div>
+      <h3>Pre RR letters</h3>
+      <p>Pre-Revenue Recovery notices for disconnected connections.</p>
+    </div>
+  </a>
+</main>
+
+<footer>
+  Designed and developed by <b>Bipin Joseph, Jr.Supdt</b><br>
+  WhatsApp your suggestions to <a href="https://wa.me/919961900910">9961900910</a>
+</footer>
+
+<!-- Settings bottom sheet -->
+<div id="configModal" class="sheet" onclick="if(event.target===this)closeConfigModal()">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="cfgTitle">
+    <div class="grab"></div>
+    <h4 id="cfgTitle"><i class="fa-solid fa-building"></i> Office settings</h4>
+    <p>These details are saved in this browser and applied across all tools.</p>
+    <label for="cfgSubDiv">Sub Division name and place</label>
+    <input type="text" id="cfgSubDiv" value="Thiruvalla">
+    <label for="cfgFileNo">Default file number prefix</label>
+    <input type="text" id="cfgFileNo" value="KWA/PHSD/TVLA/">
+    <label for="cfgEmail">Office email ID</label>
+    <input type="email" id="cfgEmail" value="kwaphsdtvla@gmail.com">
+    <div class="actions">
+      <button class="btn ghost" onclick="closeConfigModal()">Cancel</button>
+      <button class="btn solid" onclick="saveOfficeConfig()">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function loadConfig() {
+    var saved = null;
+    try { saved = localStorage.getItem('kwa_office_config'); } catch (e) {}
+    if (saved) {
+      try {
+        var cfg = JSON.parse(saved);
+        document.getElementById('badgeOfficeName').innerText = cfg.subDiv ? 'Sub Division: ' + cfg.subDiv : 'Digital Office Suite';
+        document.getElementById('cfgSubDiv').value = cfg.subDiv || 'Thiruvalla';
+        document.getElementById('cfgFileNo').value = cfg.fileNo || 'KWA/PHSD/TVLA/';
+        document.getElementById('cfgEmail').value = cfg.email || 'kwaphsdtvla@gmail.com';
+      } catch (e) {}
+    }
+  }
+  function openConfigModal() { document.getElementById('configModal').classList.add('open'); }
+  function closeConfigModal() { document.getElementById('configModal').classList.remove('open'); }
+  function saveOfficeConfig() {
+    var cfg = {
+      subDiv: document.getElementById('cfgSubDiv').value.trim(),
+      fileNo: document.getElementById('cfgFileNo').value.trim(),
+      email: document.getElementById('cfgEmail').value.trim()
+    };
+    try { localStorage.setItem('kwa_office_config', JSON.stringify(cfg)); } catch (e) {}
+    loadConfig();
+    closeConfigModal();
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeConfigModal(); });
+  window.onload = loadConfig;
+</script>
 </body>
 </html>
