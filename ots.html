@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kerala Water Authority - One Time Settlement (OTS) Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Visual Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- html2pdf.js for Client-Side PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', 'Noto Sans Malayalam', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-malayalam { font-family: 'Noto Sans Malayalam', sans-serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; font-size: 9.5pt; padding: 0 !important; }
+            .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 1rem !important; }
+            .fy-body { display: block !important; }
+            table { font-size: 8.5pt; width: 100% !important; border-collapse: collapse !important; page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 3px 6px !important; }
+            .page-break { page-break-before: always; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen pb-16 selection:bg-blue-600 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
+
+    <!-- Saved Cases Slide-Over Drawer -->
+    <div id="savedCasesDrawer" class="fixed inset-0 z-50 hidden no-print">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="toggleSavedCasesDrawer()"></div>
+        <div class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl border-l border-slate-200 flex flex-col z-10">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-900 text-white">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-folder-tree text-blue-400 text-lg"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Saved Consumer Cases</h3>
+                        <p class="text-[11px] text-slate-400">Stored locally in your browser</p>
+                    </div>
+                </div>
+                <button onclick="toggleSavedCasesDrawer()" class="text-slate-400 hover:text-white p-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <span class="text-xs font-semibold text-slate-600">Current Active Consumer</span>
+                <button onclick="saveCurrentCase()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Current Case
+                </button>
+            </div>
+            <div id="savedCasesList" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <!-- APP HEADER NAVIGATION -->
+        <header class="bg-slate-950 text-white rounded-2xl shadow-xl p-4 no-print flex flex-col lg:flex-row justify-between items-center gap-4 border border-slate-800">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 p-2.5 rounded-xl shadow-lg text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                    <i class="fa-solid fa-house"></i> <span>Home</span>
+                </a>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold">
+                <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
+                <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter faulty letters</a>
+                <a href="ots.html" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg shadow">One Time Settlement</a>
+                <a href="prerr.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Pre RR letters</a>
+                <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSavedCasesDrawer()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition border border-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-amber-400"></i> Saved <span id="savedCountBadge" class="bg-slate-950 text-slate-300 px-1.5 py-0.2 rounded text-[10px] font-mono">0</span>
+                </button>
+                <button onclick="loadSampleData()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Demo
+                </button>
+                <button onclick="resetApp()" class="px-3 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="space-y-6">
+
+        <!-- SECTION 1: Consumer Details & OTS Policy Levers -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
+            <div class="bg-slate-50/80 px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-600"></i> 1. Consumer Profile & OTS Policy Configuration
+                </h2>
+                <div class="flex flex-wrap items-center gap-4">
+                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200" title="Reconciles each row with the eAbacus Closing Balance column so cumulative demands or prior write-offs are never double-counted">
+                        <input type="checkbox" id="reconcileLedgerToggle" checked onchange="handleParamChange()" class="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
+                        <span>Auto-Reconcile with eAbacus Balance</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-600">
+                        <input type="checkbox" id="autoCalcToggle" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span>Auto-Recalculate on Change</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <!-- Primary Consumer & Date Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Consumer Name / Authority</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-building absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="consumerName" value="" placeholder="Enter Consumer Name" oninput="handleParamChange()" class="w-full text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Consumer No. / ID</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-hashtag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="consumerNo" value="" placeholder="Enter Consumer No." oninput="handleParamChange()" class="w-full text-sm pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Consider From Date</label>
+                        <input type="date" id="fromDate" value="2015-04-01" onchange="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Consider To Date</label>
+                        <input type="date" id="toDate" value="2026-03-31" onchange="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">OTS Annual Interest Rate</label>
+                        <div class="relative">
+                            <input type="number" id="annualRate" value="12" step="0.1" min="0" oninput="handleParamChange()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono font-semibold text-blue-700">
+                            <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Policy Levers -->
+                <div class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/60">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Additional OTS Interest Waiver (%)</label>
+                        <div class="relative">
+                            <input type="number" id="interestWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
+                            <span class="absolute right-3 top-1.5 text-xs font-semibold text-slate-400">%</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400">Rebate on calculated OTS fine</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Additional Surcharge waiver (%)</label>
+                        <div class="relative">
+                            <input type="number" id="surchargeWaiverPct" value="0" step="1" min="0" max="100" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-8 font-mono">
+                            <span class="absolute right-3 top-1.5 text-xs font-semibold text-slate-400">%</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400">Percentage waiver on surcharge</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Settlement Installments</label>
+                        <select id="installmentCount" onchange="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="1">Single Lump-Sum Payment (1x)</option>
+                            <option value="2">2 Monthly Installments</option>
+                            <option value="3">3 Monthly Installments</option>
+                            <option value="4">4 Monthly Installments</option>
+                            <option value="6">6 Monthly Installments</option>
+                        </select>
+                        <span class="text-[10px] text-slate-400">For consumer payment schedule</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">OTS Sanction Reference / Circular</label>
+                        <input type="text" id="circularRef" value="" placeholder="Enter Circular Reference" oninput="handleParamChange()" class="w-full text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                        <span class="text-[10px] text-slate-400">Printed on Official OTS Notice</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Paste Data from eAbacus DCB -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
+            <div class="bg-slate-50/80 px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-database text-blue-600"></i> 2. Paste Data from eAbacus DCB
+                    </h2>
+                </div>
+                <button onclick="toggleImportPanel()" id="toggleImportBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-up" id="importChevron"></i> <span>Hide Import Box</span>
+                </button>
+            </div>
+
+            <div id="importPanelBody" class="p-6 border-b border-slate-100">
+                <div class="flex flex-col">
+                    <div class="flex flex-wrap justify-between items-center mb-1.5 gap-2">
+                        <label class="text-xs font-semibold text-slate-700">Paste 12-Column eAbacus DCB rows</label>
+                        <span class="text-[11px] font-mono text-slate-400">Sl | Date | Bill | Rcpt | Dues | Water | Adj | OthAdj | Surchg | Fine | Paid | Bal</span>
+                    </div>
+                    <textarea id="pasteInput" rows="4" placeholder="Paste 12-column tab-separated or comma-separated eAbacus DCB rows here..." 
+                        class="w-full font-mono text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50/70"></textarea>
+                    <div class="mt-2.5 flex justify-between items-center">
+                        <span id="parseDiagnostics" class="text-xs text-slate-500">Ready to validate eAbacus DCB ledger records.</span>
+                        <button onclick="parsePastedData()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-check-double"></i> Validate & Import Text
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validated Raw Data Table -->
+            <div id="tableSection" class="p-6 hidden">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-md flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> <span id="recordCount">0</span> Billing Entries Loaded
+                        </span>
+                        <span class="text-xs text-slate-400" id="reconcileStatusBanner">Inline edits automatically update OTS calculations</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewRawRow()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 border border-slate-300">
+                            <i class="fa-solid fa-plus text-blue-600"></i> Add Billing Row
+                        </button>
+                        <button onclick="triggerOTSCalculation(true)" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt"></i> Recalculate OTS Now
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-72 rounded-xl border border-slate-200 shadow-2xs">
+                    <table class="w-full text-xs text-left text-slate-600">
+                        <thead class="text-[11px] uppercase bg-slate-100 text-slate-700 font-bold sticky top-0 z-10 border-b border-slate-200">
+                            <tr>
+                                <th class="px-3 py-2.5 text-center">#</th>
+                                <th class="px-3 py-2.5">Date</th>
+                                <th class="px-3 py-2.5 text-right">Dues (OB)</th>
+                                <th class="px-3 py-2.5 text-right">Water Chg (Demand)</th>
+                                <th class="px-3 py-2.5 text-right">Surcharge</th>
+                                <th class="px-3 py-2.5 text-right text-indigo-700 bg-indigo-50/60">Fine</th>
+                                <th class="px-3 py-2.5 text-right">Adj / Other</th>
+                                <th class="px-3 py-2.5 text-right">Amount Paid</th>
+                                <th class="px-3 py-2.5 text-right text-slate-900">Balance</th>
+                                <th class="px-2 py-2.5 text-center">Del</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rawTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Executive Summary Dashboard & Visual Analytics -->
+        <div id="summaryCard" class="hidden space-y-6">
+            
+            <!-- Dark Executive KPI Banner & Multi-Report Actions -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white rounded-2xl shadow-xl p-6 border border-slate-800 no-print">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold uppercase tracking-widest text-blue-400">Executive Settlement Summary</span>
+                            <span id="activePeriodBadge" class="text-[11px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"></span>
+                        </div>
+                        <h2 class="text-2xl font-extrabold tracking-tight text-white mt-1">One-Time Settlement (OTS) Assessment</h2>
+                    </div>
+
+                    <!-- 4 Reports Print & PDF Controls -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Print Options -->
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                <i class="fa-solid fa-print"></i> Print Reports
+                            </span>
+                            <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                                <button onclick="printReport('schedule')" class="px-2 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="1. Print Detailed FY Schedule">
+                                    Schedule
+                                </button>
+                                <button onclick="printReport('letter')" class="px-2 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="2. Print Full English Notice">
+                                    Notice (EN)
+                                </button>
+                                <button onclick="printReport('letter_ml')" class="px-2 py-1.5 hover:bg-slate-700 text-emerald-300 rounded-lg text-xs font-semibold transition" title="3. Print Malayalam Notice">
+                                    Notice (ML)
+                                </button>
+                                <button onclick="printReport('compact')" class="px-2 py-1.5 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition border border-amber-500/30" title="4. Print Compact Demand Notice">
+                                    Compact Notice
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6 Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">1. Current Balance (eAbacus)</span>
+                        <div class="text-2xl font-extrabold text-amber-400 mt-1 font-mono" id="sumCurrentBalance">₹0.00</div>
+                        <span class="text-[11px] text-slate-400">Closing balance in eAbacus</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">2. Current Fine (eAbacus)</span>
+                        <div class="text-2xl font-extrabold text-rose-400 mt-1 font-mono" id="sumCurrentFine">₹0.00</div>
+                        <span class="text-[11px] text-slate-400">Cumulative fine in eAbacus for the selected period</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">3. OTS Principal Balance</span>
+                        <div class="text-2xl font-extrabold text-sky-400 mt-1 font-mono" id="sumOTSBalance">₹0.00</div>
+                        <span class="text-[11px] text-slate-400" id="otsBalanceSubtext">Net principal / arrear balance under OTS</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/70">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">4. Calculated OTS Fine</span>
+                        <div class="text-2xl font-extrabold text-emerald-400 mt-1 font-mono" id="sumOTSFine">₹0.00</div>
+                        <span class="text-[11px] text-slate-400" id="interestRateLabel">12% p.a. on Progressive Cumulative Sum</span>
+                    </div>
+
+                    <div class="bg-emerald-950/50 rounded-xl p-4 border border-emerald-500/40">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-emerald-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-piggy-bank"></i> 5. Total OTS Benefit
+                            </span>
+                            <span id="benefitPctBadge" class="text-[11px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">0% Saved</span>
+                        </div>
+                        <div class="text-2xl font-extrabold text-emerald-300 mt-1 font-mono" id="sumOTSBenefit">₹0.00</div>
+                        <span class="text-[11px] text-emerald-300/80">Total Fine Savings + Surcharge Waivers</span>
+                    </div>
+
+                    <div class="bg-blue-950/70 rounded-xl p-4 border border-blue-500/60 shadow-inner">
+                        <span class="text-xs text-blue-300 font-bold uppercase tracking-wider block flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> 6. Net Payable Amount under OTS
+                        </span>
+                        <div class="text-2xl font-extrabold text-white mt-1 font-mono" id="sumPayableOTS">₹0.00</div>
+                        <span class="text-[11px] text-blue-200/90" id="payableSubtext">Formula: OTS Balance + OTS Fine</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Analytics & Installment Simulator Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+                <!-- Chart 1: Fine & Payable Comparison -->
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-blue-600"></i> Fine & Payable Comparison
+                    </h3>
+                    <div class="h-56 relative">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: FY-Wise Progressive Balance & OTS Interest Trend -->
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-600"></i> FY Progressive Sum & OTS Fine
+                    </h3>
+                    <div class="h-56 relative">
+                        <canvas id="fyTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Installment Plan -->
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check text-emerald-600"></i> Installment plan
+                            </h3>
+                            <span id="installmentBadge" class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">Lump Sum</span>
+                        </div>
+                        <div class="overflow-y-auto max-h-44 border border-slate-100 rounded-lg">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b">
+                                    <tr>
+                                        <th class="py-2 px-3">Inst #</th>
+                                        <th class="py-2 px-3">Due Date</th>
+                                        <th class="py-2 px-3 text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="installmentTableBody" class="divide-y divide-slate-100 font-mono text-xs"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-3 italic">Adjust installment count in Section 1 to simulate split payments.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Detailed FY Schedules & Printable Outputs -->
+        <div id="otsReportCard" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-6 card">
+
+            <!-- REPORT 1: Standard Calculation Schedule -->
+            <div id="printScheduleSection">
+                <div class="print-only mb-6 border-b pb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h1 class="text-xl font-bold uppercase tracking-wider text-slate-900" id="printConsumerHeader"></h1>
+                            <p class="text-xs text-slate-600 mt-0.5">Consumer No: <span id="printConsumerNo" class="font-mono font-bold"></span> | Period: <span id="printPeriodText"></span></p>
+                            <p class="text-xs font-semibold text-blue-900 mt-1">Subject: Detailed One-Time Settlement (OTS) Calculation Statement (Ref: <span id="printCircularRef"></span>)</p>
+                        </div>
+                        <div class="text-right text-xs">
+                            <p class="font-bold text-slate-800">Date: <span id="printDate"></span></p>
+                            <p class="text-slate-500">OTS Rate: <span id="printRateText">12</span>% p.a.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 border border-slate-300 rounded p-3 bg-slate-50">
+                        <h2 class="text-xs font-bold uppercase text-slate-700 mb-2 border-b pb-1">OTS Executive Summary</h2>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div><strong>Current Balance (eAbacus):</strong> <span id="pCurrentBalance"></span></div>
+                            <div><strong>Current Fine (eAbacus):</strong> <span id="pCurrentFine"></span></div>
+                            <div><strong>OTS Principal Balance:</strong> <span id="pOTSBalance"></span></div>
+                            <div><strong>OTS Fine:</strong> <span id="pOTSFine"></span></div>
+                            <div><strong>Total OTS Benefit:</strong> <span id="pOTSBenefit" class="font-bold text-emerald-700"></span></div>
+                            <div><strong>Payable Amount as per OTS:</strong> <span id="pPayableOTS" class="font-bold text-blue-900"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Controls for FY Schedules -->
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-5 no-print border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-table-list text-blue-600"></i> Financial Year-Wise Progressive Schedules
+                        </h2>
+                        <p class="text-xs text-slate-500">Click any Financial Year bar to expand or collapse its 12-month ledger</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer bg-slate-100 px-3 py-1.5 rounded-lg">
+                            <input type="checkbox" id="activeMonthsOnlyToggle" checked onchange="renderFYSchedules()" class="rounded text-blue-600">
+                            <span>Show Active Event Months Only</span>
+                        </label>
+                        <button onclick="toggleAllFYSchedules(true)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                            <i class="fa-solid fa-angles-down mr-1"></i> Expand All
+                        </button>
+                        <button onclick="toggleAllFYSchedules(false)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                            <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FY Schedules Container -->
+                <div id="fySchedulesContainer" class="space-y-4"></div>
+
+                <!-- Signature Block for Print -->
+                <div class="print-only mt-16 pt-8 border-t border-slate-300 grid grid-cols-3 gap-8 text-center text-xs">
+                    <div>
+                        <div class="border-b border-slate-400 mb-2 pb-12"></div>
+                        <p class="font-semibold text-slate-800">Prepared By</p>
+                    </div>
+                    <div>
+                        <div class="border-b border-slate-400 mb-2 pb-12"></div>
+                        <p class="font-semibold text-slate-800">Verified By</p>
+                    </div>
+                    <div>
+                        <div class="border-b border-slate-400 mb-2 pb-12"></div>
+                        <p class="font-semibold text-slate-800">Approved By</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORT 2: Official English Detailed OTS Notice -->
+            <div id="printLetterSection" class="hidden">
+                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-5 bg-white">
+                    <div class="text-center border-b-2 border-slate-800 pb-4">
+                        <h1 class="text-lg font-extrabold uppercase tracking-wide">Kerala Water Authority</h1>
+                        <p class="text-xs text-slate-700 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
+                        <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="letterCircularRef" class="font-mono font-semibold"></span></p>
+                    </div>
+
+                    <div class="flex justify-between text-xs">
+                        <div>
+                            <p class="font-bold">To,</p>
+                            <p id="letterConsumerName" class="font-semibold text-sm mt-0.5"></p>
+                            <p>Consumer No: <span id="letterConsumerNo" class="font-mono font-bold"></span></p>
+                        </div>
+                        <div class="text-right">
+                            <p><strong>Notice Date:</strong> <span id="letterDate"></span></p>
+                            <p><strong>Assessment Period:</strong> <span id="letterPeriod"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-xs leading-relaxed space-y-2">
+                        <p><strong>Subject:</strong> Intimation of One-Time Settlement (OTS) Arrear & Fine Assessment — Reg.</p>
+                        <p>Sir,</p>
+                        <p>With reference to the One-Time Settlement (OTS) scheme cited above, your water charge bill has been reviewed for the period <span id="letterPeriodInline" class="font-semibold"></span>. By recalculating your account on a monthly progressive principal balance at a concessional simple interest rate of <span id="letterRateInline" class="font-bold"></span>% p.a., the settlement summary is sanctioned as follows:</p>
+                    </div>
+
+                    <table class="w-full text-xs border border-slate-400">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 text-left border border-slate-300">Particulars</th>
+                                <th class="p-2 text-right border border-slate-300">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Current Balance (eAbacus)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="lCurrentBalance"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Current Fine (eAbacus)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="lCurrentFine"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Net Principal Arrear Balance under OTS</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="lOTSBalance"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Recalculated OTS Interest / Fine</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="lOTSFine"></td>
+                            </tr>
+                            <tr class="bg-emerald-50 font-bold">
+                                <td class="p-2 border border-slate-300">Total OTS Benefit</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 text-emerald-800" id="lOTSBenefit"></td>
+                            </tr>
+                            <tr class="bg-blue-50 font-extrabold text-sm">
+                                <td class="p-2 border border-slate-300">FINAL PAYABLE AMOUNT UNDER OTS</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 text-blue-900" id="lPayableOTS"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <h3 class="text-xs font-bold uppercase mb-2">Installment plan:</h3>
+                        <table class="w-full text-xs border border-slate-300">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-1.5 text-left">Installment</th>
+                                    <th class="p-1.5 text-left">Due On or Before</th>
+                                    <th class="p-1.5 text-right">Payable Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="letterInstallmentBody" class="font-mono"></tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-xs leading-relaxed">Please remit the payable amount within the stipulated due dates to avail the OTS waiver benefit. Failure to remit the settlement installments within the timeline will result in automatic cancellation of the OTS concession.</p>
+
+                    <div class="pt-14 grid grid-cols-2 gap-8 text-xs">
+                        <div>
+                            <p class="font-semibold">Consumer Acknowledgment:</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">Signature & Date</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">For Kerala Water Authority</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">Authorized Signatory</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORT 3: Official Malayalam OTS Notice -->
+            <div id="printLetterMalayalamSection" class="hidden font-malayalam">
+                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-5 bg-white">
+                    <div class="text-center border-b-2 border-slate-800 pb-4">
+                        <h1 class="text-lg font-extrabold tracking-wide">കേരള വാട്ടർ അതോറിറ്റി</h1>
+                        <p class="text-xs text-slate-700 font-bold mt-1">ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതി (OTS) അനുമതിയും ഡിമാൻഡ് നോട്ടീസും</p>
+                        <p class="text-xs text-slate-600 mt-1">റഫറൻസ് സർക്കുലർ: <span id="mlLetterCircularRef" class="font-mono font-semibold"></span></p>
+                    </div>
+
+                    <div class="flex justify-between text-xs">
+                        <div>
+                            <p class="font-bold">സ്വീകർത്താവ്,</p>
+                            <p id="mlLetterConsumerName" class="font-semibold text-sm mt-0.5"></p>
+                            <p>കൺസ്യൂമർ നമ്പർ: <span id="mlLetterConsumerNo" class="font-mono font-bold"></span></p>
+                        </div>
+                        <div class="text-right">
+                            <p><strong>നോട്ടീസ് തീയതി:</strong> <span id="mlLetterDate" class="font-mono"></span></p>
+                            <p><strong>പരിഗണിച്ച കാലയളവ്:</strong> <span id="mlLetterPeriod" class="font-mono"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-xs leading-relaxed space-y-2">
+                        <p><strong>വിഷയം:</strong> ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതി (OTS) പ്രകാരമുള്ള കുടിശ്ശികയും പിഴയും പുനർനിർണ്ണയിച്ചത് സംബന്ധിച്ച്.</p>
+                        <p>സർ,</p>
+                        <p>മേൽ സൂചിപ്പിച്ച ഒറ്റത്തവണ തീർപ്പാക്കൽ (OTS) പദ്ധതിയുടെ അടിസ്ഥാനത്തിൽ, താങ്കളുടെ <span id="mlLetterPeriodInline" class="font-mono font-semibold"></span> കാലയളവിലെ വാട്ടർ ചാർജ് ബിൽ പരിശോധിച്ചു. പ്രതിമാസ പ്രോഗ്രസ്സീവ് പ്രിൻസിപ്പൽ ബാലൻസിന്മേൽ വാർഷിക <span id="mlLetterRateInline" class="font-mono font-bold"></span>% ഇളവ് നിരക്കിലുള്ള സാധാരണ പലിശ (Simple Interest) കണക്കാക്കി താഴെ പറയുന്ന പ്രകാരം ഒറ്റത്തവണ തീർപ്പാക്കൽ തുക അനുവദിച്ചിരിക്കുന്നു:</p>
+                    </div>
+
+                    <table class="w-full text-xs border border-slate-400">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 text-left border border-slate-300">വിശദാംശങ്ങൾ</th>
+                                <th class="p-2 text-right border border-slate-300">തുക (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border border-slate-300">നിലവിലെ ബാലൻസ് (eAbacus പ്രകാരം)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="mlCurrentBalance"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">നിലവിലെ പിഴ (eAbacus പ്രകാരം)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="mlCurrentFine"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">OTS പ്രകാരമുള്ള പ്രിൻസിപ്പൽ കുടിശ്ശിക ബാലൻസ്</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="mlOTSBalance"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">OTS പ്രകാരം പുനർനിർണ്ണയിച്ച പലിശ / പിഴ</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="mlOTSFine"></td>
+                            </tr>
+                            <tr class="bg-emerald-50 font-bold">
+                                <td class="p-2 border border-slate-300">ആകെ OTS ആനുകൂല്യം (ഇളവ്)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 text-emerald-800" id="mlOTSBenefit"></td>
+                            </tr>
+                            <tr class="bg-blue-50 font-extrabold text-sm">
+                                <td class="p-2 border border-slate-300">OTS പ്രകാരം അടയ്ക്കേണ്ട ആകെ തുക</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 text-blue-900" id="mlPayableOTS"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <h3 class="text-xs font-bold mb-2">ഗഡുക്കളായി അടയ്ക്കാനുള്ള പ്ലാൻ (Installment plan):</h3>
+                        <table class="w-full text-xs border border-slate-300">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-1.5 text-left">ഗഡു</th>
+                                    <th class="p-1.5 text-left">അവസാന തീയതി</th>
+                                    <th class="p-1.5 text-right">അടയ്ക്കേണ്ട തുക (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mlLetterInstallmentBody" class="font-mono"></tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-xs leading-relaxed">ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതിയുടെ ഇളവ് ലഭിക്കുന്നതിനായി മുകളിൽ കാണിച്ചിരിക്കുന്ന നിശ്ചിത തീയതികൾക്കുള്ളിൽ തുക അടയ്ക്കേണ്ടതാണ്. നിശ്ചിത സമയപരിധിക്കുള്ളിൽ തുക അടയ്ക്കാത്തപക്ഷം OTS ആനുകൂല്യം സ്വമേധയാ റദ്ദാക്കപ്പെടുന്നതാണ്.</p>
+
+                    <div class="pt-14 grid grid-cols-2 gap-8 text-xs">
+                        <div>
+                            <p class="font-semibold">ഉപഭോക്താവിന്റെ കൈപ്പറ്റൽ:</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">ഒപ്പും തീയതിയും</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">കേരള വാട്ടർ അതോറിറ്റിക്ക് വേണ്ടി</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">അധികാരപ്പെടുത്തിയ ഉദ്യോഗസ്ഥൻ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORT 4: Concise OTS Sanction & Demand Notice -->
+            <div id="printCompactLetterSection" class="hidden">
+                <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
+                    <div class="text-center border-b-2 border-slate-800 pb-3">
+                        <h1 class="text-lg font-extrabold uppercase tracking-wide">KERALA WATER AUTHORITY</h1>
+                        <p class="text-xs text-slate-800 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
+                        <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="compactCircularRef" class="font-mono font-semibold">-</span></p>
+                    </div>
+
+                    <div class="flex justify-between text-xs pt-1">
+                        <div>
+                            <p class="font-bold">To,</p>
+                            <p id="compactConsumerName" class="font-semibold text-sm mt-0.5"></p>
+                            <p>Consumer No: <span id="compactConsumerNo" class="font-mono font-bold"></span></p>
+                        </div>
+                        <div class="text-right">
+                            <p><strong>Notice Date:</strong> <span id="compactDate"></span></p>
+                            <p><strong>Assessment Period:</strong> <span id="compactPeriod"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-xs leading-relaxed space-y-1.5">
+                        <p><strong>Subject:</strong> Intimation of One-Time Settlement (OTS) Arrear & Fine Assessment Reg.</p>
+                        <p>Sir,</p>
+                        <p>With reference to the One-Time Settlement (OTS) scheme cited above, your water charge bill has been reviewed for the period <span id="compactPeriodInline" class="font-semibold"></span>.</p>
+                    </div>
+
+                    <!-- Concise 3-Row Particulars Table -->
+                    <table class="w-full text-xs border border-slate-400 my-2">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 text-left border border-slate-300 font-bold">Particulars</th>
+                                <th class="p-2 text-right border border-slate-300 font-bold">Amount ( ₹ )</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Current Balance (eAbacus)</td>
+                                <td class="p-2 text-right font-mono border border-slate-300" id="cCurrentBalance"></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Total OTS Benefit</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 font-semibold text-emerald-800" id="cOTSBenefit"></td>
+                            </tr>
+                            <tr class="font-bold bg-slate-50">
+                                <td class="p-2 border border-slate-300 uppercase">FINAL PAYABLE AMOUNT UNDER OTS</td>
+                                <td class="p-2 text-right font-mono border border-slate-300 text-slate-900" id="cPayableOTS"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Installment Plan Section -->
+                    <div class="pt-1">
+                        <h3 class="text-xs font-bold uppercase mb-1">INSTALLMENT PLAN:</h3>
+                        <table class="w-full text-xs border border-slate-300">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-1.5 text-left border border-slate-300 font-bold">Installment</th>
+                                    <th class="p-1.5 text-left border border-slate-300 font-bold">Due On or Before</th>
+                                    <th class="p-1.5 text-right border border-slate-300 font-bold">Payable Amount ( ₹ )</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compactInstallmentBody" class="font-mono"></tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-xs leading-relaxed pt-1">Please remit the payable amount within the stipulated due dates to avail the OTS waiver benefit. Failure to remit the settlement installments within the timeline will result in automatic cancellation of the OTS concession.</p>
+
+                    <div class="pt-12 grid grid-cols-2 gap-8 text-xs">
+                        <div>
+                            <p class="font-semibold">Consumer Acknowledgment:</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48">Signature & Date</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">For Kerala Water Authority</p>
+                            <p class="mt-8 border-t border-slate-400 inline-block pt-1 w-48 text-center">Authorized Signatory</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-4 mt-auto border-t border-slate-300 text-slate-700 text-xs px-2 no-print">
+        Designed and developed by <span class="font-bold">Bipin Joseph, Jr.Supdt</span>. Please whatsapp your suggestions to <a href="https://wa.me/919961900910" class="text-blue-900 font-bold underline">9961900910</a>.
+    </footer>
+
+    <script>
+        const MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const SAMPLE_DATA_RAW = [
+            { date: "07-Jul-2015", ob: 0,    demand: 3368, surcharge: 0, fine: 0,   adj: -66,   receipt: 0,    total: 3302 },
+            { date: "16-Sep-2015", ob: 3302, demand: 1954, surcharge: 0, fine: 31,  adj: -1818, receipt: 0,    total: 3469 },
+            { date: "19-Nov-2015", ob: 3469, demand: 2108, surcharge: 0, fine: 0,   adj: -2101, receipt: 0,    total: 3476 },
+            { date: "21-Jan-2016", ob: 3476, demand: 2108, surcharge: 0, fine: 0,   adj: 0,     receipt: 3476, total: 2108 },
+            { date: "21-Mar-2016", ob: 2108, demand: 2108, surcharge: 0, fine: 36,  adj: 0,     receipt: 0,    total: 4252 },
+            { date: "05-Apr-2016", ob: 4252, demand: 1406, surcharge: 0, fine: 0,   adj: 0,     receipt: 0,    total: 5658 },
+            { date: "17-Aug-2016", ob: 5658, demand: 2109, surcharge: 0, fine: 346, adj: 0,     receipt: 0,    total: 8113 },
+            { date: "18-Oct-2016", ob: 8113, demand: 1014, surcharge: 0, fine: 162, adj: -951,  receipt: 8113, total: 225  },
+            { date: "16-Dec-2016", ob: 225,  demand: 1014, surcharge: 0, fine: 0,   adj: -225,  receipt: 0,    total: 1014 },
+            { date: "13-Feb-2017", ob: 1014, demand: 1520, surcharge: 0, fine: 0,   adj: -1014, receipt: 0,    total: 1520 }
+        ];
+
+        let rawRecords = [];
+        let globalFyMap = {};
+        let globalFySummaries = [];
+        let lastMetrics = null;
+        let comparisonChartInstance = null;
+        let fyTrendChartInstance = null;
+
+        window.onload = function() {
+            const now = new Date();
+            const todayDDMMYYYY = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+            document.getElementById('printDate').innerText = todayDDMMYYYY;
+            document.getElementById('letterDate').innerText = todayDDMMYYYY;
+            document.getElementById('mlLetterDate').innerText = todayDDMMYYYY;
+            document.getElementById('compactDate').innerText = todayDDMMYYYY;
+            updateSavedCasesUI();
+        };
+
+        function formatDateDDMMYYYY(dateInput) {
+            if (!dateInput) return '';
+            if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+                const [y, m, d] = dateInput.split('-');
+                return `${d}-${m}-${y}`;
+            }
+            const d = dateInput instanceof Date ? dateInput : parseToDate(String(dateInput));
+            if (isNaN(d.getTime())) return String(dateInput);
+            return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const colors = {
+                success: 'bg-emerald-900 border-emerald-500 text-emerald-100',
+                error: 'bg-rose-900 border-rose-500 text-rose-100',
+                info: 'bg-slate-900 border-blue-500 text-slate-100'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                info: 'fa-circle-info text-blue-400'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
+                <span class="flex-1">${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function toggleImportPanel() {
+            const body = document.getElementById('importPanelBody');
+            const chevron = document.getElementById('importChevron');
+            const btnText = document.querySelector('#toggleImportBtn span');
+            if (body.classList.contains('hidden')) {
+                body.classList.remove('hidden');
+                chevron.className = 'fa-solid fa-chevron-up';
+                btnText.innerText = 'Hide Import Box';
+            } else {
+                body.classList.add('hidden');
+                chevron.className = 'fa-solid fa-chevron-down';
+                btnText.innerText = 'Show Import Box';
+            }
+        }
+
+        function loadSampleData() {
+            document.getElementById('consumerName').value = "Secretary Grama Panchayath";
+            document.getElementById('consumerNo').value = "KZC/1829/N";
+            document.getElementById('fromDate').value = "2015-04-01";
+            document.getElementById('toDate').value = "2017-03-31";
+            document.getElementById('annualRate').value = "12";
+            document.getElementById('interestWaiverPct').value = "0";
+            document.getElementById('surchargeWaiverPct').value = "0";
+            document.getElementById('installmentCount').value = "1";
+            document.getElementById('reconcileLedgerToggle').checked = true;
+            document.getElementById('activeMonthsOnlyToggle').checked = true;
+
+            rawRecords = JSON.parse(JSON.stringify(SAMPLE_DATA_RAW));
+            renderRawTable();
+            document.getElementById('tableSection').classList.remove('hidden');
+            triggerOTSCalculation(false);
+            showToast("Demo consumer case loaded & calculated!", "success");
+        }
+
+        function resetApp() {
+            rawRecords = [];
+            globalFyMap = {};
+            globalFySummaries = [];
+            lastMetrics = null;
+            document.getElementById('consumerName').value = '';
+            document.getElementById('consumerNo').value = '';
+            document.getElementById('circularRef').value = '';
+            document.getElementById('interestWaiverPct').value = '0';
+            document.getElementById('surchargeWaiverPct').value = '0';
+            document.getElementById('pasteInput').value = '';
+            document.getElementById('tableSection').classList.add('hidden');
+            document.getElementById('summaryCard').classList.add('hidden');
+            document.getElementById('otsReportCard').classList.add('hidden');
+            showToast("Workspace reset.", "info");
+        }
+
+        function handleParamChange() {
+            if (document.getElementById('autoCalcToggle').checked && rawRecords.length > 0) {
+                triggerOTSCalculation(false);
+            }
+        }
+
+        function renderRawTable() {
+            const tbody = document.getElementById('rawTableBody');
+            document.getElementById('recordCount').innerText = rawRecords.length;
+
+            tbody.innerHTML = rawRecords.map((r, i) => `
+                <tr class="hover:bg-blue-50/30 transition">
+                    <td class="px-3 py-1.5 font-mono text-slate-400 text-center">${i + 1}</td>
+                    <td class="px-2 py-1.5"><input type="text" value="${r.date}" onchange="updateRecord(${i}, 'date', this.value)" class="w-24 px-2 py-1 border border-slate-200 rounded text-xs font-mono"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.ob}" onchange="updateRecord(${i}, 'ob', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.demand}" onchange="updateRecord(${i}, 'demand', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.surcharge}" onchange="updateRecord(${i}, 'surcharge', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
+                    <td class="px-2 py-1.5 bg-indigo-50/40"><input type="number" step="0.01" value="${r.fine}" onchange="updateRecord(${i}, 'fine', this.value)" class="w-20 px-2 py-1 border border-indigo-200 bg-white rounded text-xs text-right font-mono font-semibold text-indigo-700"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.adj}" onchange="updateRecord(${i}, 'adj', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.receipt}" onchange="updateRecord(${i}, 'receipt', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
+                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.total}" onchange="updateRecord(${i}, 'total', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono font-bold text-slate-800"></td>
+                    <td class="px-2 py-1.5 text-center"><button onclick="deleteRow(${i})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateRecord(index, field, value) {
+            if (field === 'date') rawRecords[index].date = value.trim();
+            else rawRecords[index][field] = parseFloat(value) || 0;
+            handleParamChange();
+        }
+
+        function addNewRawRow() {
+            const lastTotal = rawRecords.length > 0 ? rawRecords[rawRecords.length - 1].total : 0;
+            rawRecords.push({
+                date: "01-Apr-2017",
+                ob: lastTotal,
+                demand: 1000,
+                surcharge: 0,
+                fine: 0,
+                adj: 0,
+                receipt: 0,
+                total: lastTotal + 1000
+            });
+            renderRawTable();
+            handleParamChange();
+            showToast("Added new billing row.", "info");
+        }
+
+        function deleteRow(index) {
+            rawRecords.splice(index, 1);
+            renderRawTable();
+            if (rawRecords.length === 0) {
+                document.getElementById('tableSection').classList.add('hidden');
+                document.getElementById('summaryCard').classList.add('hidden');
+                document.getElementById('otsReportCard').classList.add('hidden');
+            } else {
+                handleParamChange();
+            }
+        }
+
+        function parsePastedData() {
+            const rawText = document.getElementById('pasteInput').value.trim();
+            if (!rawText) {
+                showToast("Please paste eAbacus DCB data first.", "error");
+                return;
+            }
+
+            const lines = rawText.split(/\r?\n/);
+            const parsed = [];
+            let errorCount = 0;
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const cols = line.split(/[\t,]|  +/).map(c => c.trim());
+
+                if (cols.length >= 8) {
+                    let dateStr = cols[1];
+                    let dateColIdx = 1;
+                    if (!dateStr || !dateStr.match(/(\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4})|(\d{1,2}-[A-Za-z]{3}-\d{4})/)) {
+                        for (let c = 0; c < cols.length; c++) {
+                            if (cols[c] && cols[c].match(/(\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4})|(\d{1,2}-[A-Za-z]{3}-\d{4})/)) {
+                                dateColIdx = c;
+                                dateStr = cols[c];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (dateStr && dateStr.match(/(\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4})|(\d{1,2}-[A-Za-z]{3}-\d{4})/)) {
+                        let offset = dateColIdx - 1;
+                        const dues = parseFloat(cols[4 + offset]) || 0;
+                        const waterChg = parseFloat(cols[5 + offset]) || 0;
+                        const adjAmt = parseFloat(cols[6 + offset]) || 0;
+                        const otherAdj = parseFloat(cols[7 + offset]) || 0;
+                        const surcharge = parseFloat(cols[8 + offset]) || 0;
+                        const fine = parseFloat(cols[9 + offset]) || 0;
+                        const paid = parseFloat(cols[10 + offset]) || 0;
+                        const balance = parseFloat(cols[cols.length - 1]) || 0;
+
+                        parsed.push({
+                            date: dateStr.replace(/\//g, '-').replace(/\./g, '-'),
+                            ob: dues,
+                            demand: waterChg,
+                            surcharge: surcharge,
+                            fine: fine,
+                            adj: adjAmt + otherAdj,
+                            receipt: paid,
+                            total: balance
+                        });
+                    } else {
+                        errorCount++;
+                    }
+                } else {
+                    errorCount++;
+                }
+            });
+
+            if (parsed.length > 0) {
+                rawRecords = parsed;
+                renderRawTable();
+                document.getElementById('tableSection').classList.remove('hidden');
+                document.getElementById('pasteInput').value = '';
+                document.getElementById('parseDiagnostics').innerText = `Last import: ${parsed.length} valid rows (${errorCount} skipped).`;
+                triggerOTSCalculation(false);
+                showToast(`Imported ${parsed.length} eAbacus DCB rows (${errorCount} skipped).`, "success");
+            } else {
+                showToast("Validation failed. Ensure data has valid dates and eAbacus DCB columns.", "error");
+            }
+        }
+
+        function parseToDate(dateStr) {
+            if (!dateStr) return new Date(1970, 0, 1);
+            const monthsMap = {jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11};
+            const parts = dateStr.toLowerCase().split('-');
+            if (parts.length === 3 && isNaN(parseInt(parts[1]))) {
+                return new Date(parseInt(parts[2]), monthsMap[parts[1].substring(0, 3)] || 0, parseInt(parts[0]));
+            }
+            if (parts.length === 3) {
+                if (parts[0].length === 4) return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                else return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+            return new Date(dateStr);
+        }
+
+        function triggerOTSCalculation(scrollToSummary = false) {
+            if (rawRecords.length === 0) {
+                showToast("No billing records available to calculate.", "error");
+                return;
+            }
+
+            const fromDateStr = document.getElementById('fromDate').value;
+            const toDateStr = document.getElementById('toDate').value;
+            const fromDate = fromDateStr ? new Date(fromDateStr) : new Date(1900, 0, 1);
+            const toDate = toDateStr ? new Date(toDateStr) : new Date(2100, 11, 31);
+            toDate.setHours(23, 59, 59, 999);
+
+            const filteredRecords = rawRecords.filter(r => {
+                const d = parseToDate(r.date);
+                return d >= fromDate && d <= toDate;
+            });
+
+            if (filteredRecords.length === 0) {
+                showToast("No billing records fall within the selected From/To dates.", "error");
+                return;
+            }
+
+            const annualRate = parseFloat(document.getElementById('annualRate').value) || 0;
+            const interestWaiverPct = Math.min(100, Math.max(0, parseFloat(document.getElementById('interestWaiverPct').value) || 0));
+            const surchargeWaiverPct = Math.min(100, Math.max(0, parseFloat(document.getElementById('surchargeWaiverPct').value) || 0));
+            const reconcileLedger = document.getElementById('reconcileLedgerToggle').checked;
+            const installmentCount = parseInt(document.getElementById('installmentCount').value) || 1;
+            const circularRef = document.getElementById('circularRef').value.trim() || '-';
+
+            const formattedFromDate = formatDateDDMMYYYY(fromDateStr);
+            const formattedToDate = formatDateDDMMYYYY(toDateStr);
+
+            const sortedRecords = [...filteredRecords].sort((a, b) => parseToDate(a.date) - parseToDate(b.date));
+            const startDate = parseToDate(sortedRecords[0].date);
+            const endDate = parseToDate(sortedRecords[sortedRecords.length - 1].date);
+
+            let startFYYear = startDate.getMonth() >= 3 ? startDate.getFullYear() : startDate.getFullYear() - 1;
+            let endFYYear = endDate.getMonth() >= 3 ? endDate.getFullYear() : endDate.getFullYear() - 1;
+            if (endFYYear < startFYYear) endFYYear = startFYYear;
+
+            const fyMap = {};
+            for (let fy = startFYYear; fy <= endFYYear; fy++) {
+                const fyLabel = `${fy}-${(fy + 1).toString().slice(-2)}`;
+                fyMap[fyLabel] = [];
+                for (let m = 0; m < 12; m++) {
+                    const monthIndex = (m + 3) % 12;
+                    const year = m < 9 ? fy : fy + 1;
+                    const monthDate = new Date(year, monthIndex, 1);
+                    fyMap[fyLabel].push({
+                        monthDate,
+                        monthLabel: `${MONTH_SHORT_NAMES[monthIndex]}-${year}`,
+                        ob: 0, demand: 0, surcharge: 0, adj: 0, receipt: 0, cb: 0, hasRawRecord: false
+                    });
+                }
+            }
+
+            let totalSurchargeWaived = 0;
+            let reconciledRowsCount = 0;
+            let prevEabacusTotal = sortedRecords[0].ob || 0;
+
+            sortedRecords.forEach((rec, idx) => {
+                const d = parseToDate(rec.date);
+                const recFYYear = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+                const fyLabel = `${recFYYear}-${(recFYYear + 1).toString().slice(-2)}`;
+
+                if (fyMap[fyLabel]) {
+                    const monthObj = fyMap[fyLabel].find(m =>
+                        m.monthDate.getMonth() === d.getMonth() && m.monthDate.getFullYear() === d.getFullYear()
+                    );
+                    if (monthObj) {
+                        const waivedSurchargeAmt = rec.surcharge * (surchargeWaiverPct / 100);
+                        const effectiveSurcharge = rec.surcharge - waivedSurchargeAmt;
+                        totalSurchargeWaived += waivedSurchargeAmt;
+
+                        const baseOB = idx === 0 ? (rec.ob || 0) : prevEabacusTotal;
+                        const expectedRawTotal = baseOB + rec.demand + rec.surcharge + rec.fine + rec.adj - rec.receipt;
+                        const drift = rec.total - expectedRawTotal;
+
+                        let effectiveAdj = rec.adj;
+                        if (reconcileLedger && Math.abs(drift) > 0.01) {
+                            effectiveAdj += drift;
+                            reconciledRowsCount++;
+                        }
+
+                        monthObj.demand += rec.demand;
+                        monthObj.surcharge += effectiveSurcharge;
+                        monthObj.adj += effectiveAdj;
+                        monthObj.receipt += rec.receipt;
+                        monthObj.hasRawRecord = true;
+                    }
+                }
+                prevEabacusTotal = rec.total;
+            });
+
+            document.getElementById('reconcileStatusBanner').innerText = reconcileLedger
+                ? (reconciledRowsCount > 0 ? `Auto-reconciled ${reconciledRowsCount} row(s) with eAbacus Balance.` : `All rows reconciled with eAbacus Balance.`)
+                : `Inline edits automatically update OTS calculations`;
+
+            let runningOB = sortedRecords[0].ob || 0;
+            let rawOTSInterestAllFY = 0;
+            const fySummaries = [];
+
+            Object.keys(fyMap).forEach(fyLabel => {
+                let fyProgressiveTotal = 0;
+                fyMap[fyLabel].forEach(m => {
+                    m.ob = runningOB;
+                    m.cb = m.ob + m.demand + m.surcharge + m.adj - m.receipt;
+                    runningOB = m.cb;
+                    if (m.hasRawRecord) {
+                        fyProgressiveTotal += Math.max(0, m.cb);
+                    }
+                });
+
+                const fyInterestRaw = (fyProgressiveTotal * annualRate) / 1200;
+                const fyInterestNet = fyInterestRaw * (1 - interestWaiverPct / 100);
+                rawOTSInterestAllFY += fyInterestNet;
+
+                fySummaries.push({
+                    fyLabel,
+                    progressiveTotal: fyProgressiveTotal,
+                    interest: fyInterestNet,
+                    closingBalance: runningOB
+                });
+            });
+
+            const currentBalanceEabacus = sortedRecords[sortedRecords.length - 1].total || runningOB;
+            const currentFineTotal = filteredRecords.reduce((sum, r) => sum + (parseFloat(r.fine) || 0), 0);
+            const otsBalance = Math.max(0, runningOB);
+            const otsFine = rawOTSInterestAllFY;
+            const otsBenefit = (currentFineTotal - otsFine) + totalSurchargeWaived;
+            const payableAmountOTS = otsBalance + otsFine;
+
+            globalFyMap = fyMap;
+            globalFySummaries = fySummaries;
+            lastMetrics = {
+                currentBalanceEabacus, currentFineTotal, otsBalance, otsFine, otsBenefit, payableAmountOTS,
+                annualRate, interestWaiverPct, surchargeWaiverPct, formattedFromDate, formattedToDate, installmentCount, circularRef
+            };
+
+            document.getElementById('activePeriodBadge').innerText = `${formattedFromDate} → ${formattedToDate}`;
+            document.getElementById('sumCurrentBalance').innerText = formatCurrency(currentBalanceEabacus);
+            document.getElementById('sumCurrentFine').innerText = formatCurrency(currentFineTotal);
+            document.getElementById('sumOTSBalance').innerText = formatCurrency(otsBalance);
+            document.getElementById('sumOTSFine').innerText = formatCurrency(otsFine);
+            document.getElementById('sumOTSBenefit').innerText = formatCurrency(otsBenefit);
+            document.getElementById('sumPayableOTS').innerText = formatCurrency(payableAmountOTS);
+
+            const waiverNote = interestWaiverPct > 0 ? ` (after ${interestWaiverPct}% waiver)` : '';
+            document.getElementById('interestRateLabel').innerText = `${annualRate}% p.a. on Progressive Sum${waiverNote}`;
+            document.getElementById('otsBalanceSubtext').innerText = surchargeWaiverPct > 0
+                ? `Principal balance (${surchargeWaiverPct}% Surcharge Waived)`
+                : 'Net principal / arrear balance under OTS';
+
+            const benefitPct = currentFineTotal > 0 ? Math.round((otsBenefit / currentFineTotal) * 100) : 0;
+            document.getElementById('benefitPctBadge').innerText = `${benefitPct}% Fine Relief`;
+
+            const cName = document.getElementById('consumerName').value.trim() || '-';
+            const cNo = document.getElementById('consumerNo').value.trim() || '-';
+
+            document.getElementById('printConsumerHeader').innerText = cName;
+            document.getElementById('printConsumerNo').innerText = cNo;
+            document.getElementById('printPeriodText').innerText = `${formattedFromDate} to ${formattedToDate}`;
+            document.getElementById('printRateText').innerText = annualRate;
+            document.getElementById('printCircularRef').innerText = circularRef;
+
+            ['p', 'l', 'ml', 'c'].forEach(prefix => {
+                if (document.getElementById(prefix + 'CurrentBalance')) document.getElementById(prefix + 'CurrentBalance').innerText = formatCurrency(currentBalanceEabacus, false);
+                if (document.getElementById(prefix + 'CurrentFine')) document.getElementById(prefix + 'CurrentFine').innerText = formatCurrency(currentFineTotal, false);
+                if (document.getElementById(prefix + 'OTSBalance')) document.getElementById(prefix + 'OTSBalance').innerText = formatCurrency(otsBalance, false);
+                if (document.getElementById(prefix + 'OTSFine')) document.getElementById(prefix + 'OTSFine').innerText = formatCurrency(otsFine, false);
+                if (document.getElementById(prefix + 'OTSBenefit')) document.getElementById(prefix + 'OTSBenefit').innerText = formatCurrency(otsBenefit, false);
+                if (document.getElementById(prefix + 'PayableOTS')) document.getElementById(prefix + 'PayableOTS').innerText = formatCurrency(payableAmountOTS, false);
+            });
+
+            document.getElementById('letterCircularRef').innerText = circularRef;
+            document.getElementById('letterConsumerName').innerText = cName;
+            document.getElementById('letterConsumerNo').innerText = cNo;
+            document.getElementById('letterPeriod').innerText = `${formattedFromDate} to ${formattedToDate}`;
+            document.getElementById('letterPeriodInline').innerText = `${formattedFromDate} to ${formattedToDate}`;
+            document.getElementById('letterRateInline').innerText = annualRate;
+
+            document.getElementById('mlLetterCircularRef').innerText = circularRef;
+            document.getElementById('mlLetterConsumerName').innerText = cName;
+            document.getElementById('mlLetterConsumerNo').innerText = cNo;
+            document.getElementById('mlLetterPeriod').innerText = `${formattedFromDate} മുതൽ ${formattedToDate} വരെ`;
+            document.getElementById('mlLetterPeriodInline').innerText = `${formattedFromDate} മുതൽ ${formattedToDate} വരെ`;
+            document.getElementById('mlLetterRateInline').innerText = annualRate;
+
+            // Update Report 4 (Compact Notice)
+            document.getElementById('compactCircularRef').innerText = circularRef;
+            document.getElementById('compactConsumerName').innerText = cName;
+            document.getElementById('compactConsumerNo').innerText = cNo;
+            document.getElementById('compactPeriod').innerText = `${formattedFromDate} to ${formattedToDate}`;
+            document.getElementById('compactPeriodInline').innerText = `${formattedFromDate} to ${formattedToDate}`;
+
+            renderInstallmentSchedule(payableAmountOTS, installmentCount);
+            renderCharts(currentFineTotal, otsFine, otsBalance, payableAmountOTS, fySummaries);
+            renderFYSchedules();
+
+            document.getElementById('summaryCard').classList.remove('hidden');
+            document.getElementById('otsReportCard').classList.remove('hidden');
+
+            if (scrollToSummary) {
+                document.getElementById('summaryCard').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function renderInstallmentSchedule(totalPayable, count) {
+            const tbody = document.getElementById('installmentTableBody');
+            const letterTbody = document.getElementById('letterInstallmentBody');
+            const mlLetterTbody = document.getElementById('mlLetterInstallmentBody');
+            const compactTbody = document.getElementById('compactInstallmentBody');
+            document.getElementById('installmentBadge').innerText = count === 1 ? 'Single Lump Sum' : `${count} Monthly EMIs`;
+
+            const perInstallment = totalPayable / count;
+            let rowsHtml = '';
+            let letterRowsHtml = '';
+            let mlLetterRowsHtml = '';
+            let compactRowsHtml = '';
+            const baseDate = new Date();
+
+            for (let i = 1; i <= count; i++) {
+                const due = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 15);
+                const dueStr = formatDateDDMMYYYY(due);
+                rowsHtml += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2 px-3 font-semibold text-slate-700">#${i}</td>
+                        <td class="py-2 px-3 text-slate-500">${dueStr}</td>
+                        <td class="py-2 px-3 text-right font-bold text-slate-900">${formatCurrency(perInstallment)}</td>
+                    </tr>
+                `;
+                letterRowsHtml += `
+                    <tr>
+                        <td class="p-1.5 border border-slate-300">Installment #${i}</td>
+                        <td class="p-1.5 border border-slate-300">${dueStr}</td>
+                        <td class="p-1.5 border border-slate-300 text-right font-bold">${formatCurrency(perInstallment, false)}</td>
+                    </tr>
+                `;
+                mlLetterRowsHtml += `
+                    <tr>
+                        <td class="p-1.5 border border-slate-300">ഗഡു #${i}</td>
+                        <td class="p-1.5 border border-slate-300">${dueStr}</td>
+                        <td class="p-1.5 border border-slate-300 text-right font-bold">${formatCurrency(perInstallment, false)}</td>
+                    </tr>
+                `;
+                compactRowsHtml += `
+                    <tr>
+                        <td class="p-1.5 border border-slate-300">Installment #${i}</td>
+                        <td class="p-1.5 border border-slate-300">${dueStr}</td>
+                        <td class="p-1.5 border border-slate-300 text-right font-bold">${formatCurrency(perInstallment, false)}</td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = rowsHtml;
+            letterTbody.innerHTML = letterRowsHtml;
+            mlLetterTbody.innerHTML = mlLetterRowsHtml;
+            compactTbody.innerHTML = compactRowsHtml;
+        }
+
+        function renderCharts(currentFine, otsFine, otsBalance, payableOTS, fySummaries) {
+            const ctx1 = document.getElementById('comparisonChart').getContext('2d');
+            if (comparisonChartInstance) comparisonChartInstance.destroy();
+            comparisonChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['eAbacus fine', 'OTS Fine', 'OTS Principal', 'Total Payable'],
+                    datasets: [{
+                        label: 'Amount (₹)',
+                        data: [currentFine, otsFine, otsBalance, payableOTS],
+                        backgroundColor: ['#fb7185', '#34d399', '#38bdf8', '#6366f1'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            const ctx2 = document.getElementById('fyTrendChart').getContext('2d');
+            if (fyTrendChartInstance) fyTrendChartInstance.destroy();
+            fyTrendChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: fySummaries.map(s => s.fyLabel),
+                    datasets: [
+                        {
+                            label: 'FY Closing Principal (₹)',
+                            data: fySummaries.map(s => s.closingBalance),
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'FY OTS Interest (₹)',
+                            data: fySummaries.map(s => s.interest),
+                            borderColor: '#10b981',
+                            backgroundColor: '#10b981',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function renderFYSchedules() {
+            const container = document.getElementById('fySchedulesContainer');
+            const activeOnly = document.getElementById('activeMonthsOnlyToggle').checked;
+            const annualRate = lastMetrics ? lastMetrics.annualRate : 12;
+            container.innerHTML = '';
+
+            Object.keys(globalFyMap).forEach((fyLabel, idx) => {
+                const allMonths = globalFyMap[fyLabel];
+                const months = activeOnly ? allMonths.filter(m => m.hasRawRecord) : allMonths;
+                const summary = globalFySummaries.find(s => s.fyLabel === fyLabel);
+
+                container.innerHTML += `
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+                        <div onclick="toggleSingleFY('fy-body-${idx}', 'fy-icon-${idx}')" class="bg-slate-100/90 hover:bg-slate-200/60 cursor-pointer px-4 py-3 border-b border-slate-200 flex flex-wrap justify-between items-center gap-2 transition">
+                            <div class="flex items-center gap-2.5">
+                                <i id="fy-icon-${idx}" class="fa-solid fa-chevron-down text-slate-500 text-xs no-print"></i>
+                                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-calendar-days text-blue-600 mr-1.5"></i> Financial Year: ${fyLabel}</h3>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs font-mono">
+                                <span class="bg-white px-2.5 py-1 rounded border border-slate-200 text-slate-600">Prog. Sum: <strong>${formatCurrency(summary.progressiveTotal)}</strong></span>
+                                <span class="bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 text-emerald-800">OTS Fine: <strong>${formatCurrency(summary.interest)}</strong></span>
+                            </div>
+                        </div>
+                        <div id="fy-body-${idx}" class="fy-body overflow-x-auto">
+                            <table class="w-full text-xs text-left text-slate-600">
+                                <thead class="bg-slate-50 text-slate-700 font-semibold uppercase text-[11px] border-b">
+                                    <tr>
+                                        <th class="px-3 py-2">Month</th>
+                                        <th class="px-3 py-2 text-right">OB</th>
+                                        <th class="px-3 py-2 text-right">Demand</th>
+                                        <th class="px-3 py-2 text-right">Surcharge</th>
+                                        <th class="px-3 py-2 text-right">Add/Adj</th>
+                                        <th class="px-3 py-2 text-right">Receipt</th>
+                                        <th class="px-3 py-2 text-right font-bold text-slate-800">CB / Progressive</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 font-mono">
+                                    ${months.length > 0 ? months.map(m => `
+                                        <tr class="${m.hasRawRecord ? 'bg-amber-50/40 font-medium' : 'hover:bg-slate-50'}">
+                                            <td class="px-3 py-1.5 text-slate-700">
+                                                ${m.monthLabel}${m.hasRawRecord ? '<span class="ml-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 inline-block no-print" title="Active Billing Event"></span>' : ''}
+                                            </td>
+                                            <td class="px-3 py-1.5 text-right">${formatNumber(m.ob)}</td>
+                                            <td class="px-3 py-1.5 text-right">${formatNumber(m.demand)}</td>
+                                            <td class="px-3 py-1.5 text-right">${formatNumber(m.surcharge)}</td>
+                                            <td class="px-3 py-1.5 text-right">${formatNumber(m.adj)}</td>
+                                            <td class="px-3 py-1.5 text-right">${formatNumber(m.receipt)}</td>
+                                            <td class="px-3 py-1.5 text-right font-bold text-slate-900 bg-slate-50/60">${formatNumber(m.cb)}</td>
+                                        </tr>
+                                    `).join('') : `<tr><td colspan="7" class="px-3 py-4 text-center text-slate-400 italic">No active billing events in this Financial Year.</td></tr>`}
+                                </tbody>
+                                <tfoot class="bg-slate-50 font-semibold text-slate-800 border-t">
+                                    <tr>
+                                        <td class="px-3 py-2 text-right" colspan="6">Calculated FY OTS Fine (${annualRate}% p.a.):</td>
+                                        <td class="px-3 py-2 text-right font-bold text-emerald-700 font-mono">${formatCurrency(summary.interest)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleSingleFY(bodyId, iconId) {
+            const body = document.getElementById(bodyId);
+            const icon = document.getElementById(iconId);
+            body.classList.toggle('hidden');
+            icon.className = body.classList.contains('hidden')
+                ? 'fa-solid fa-chevron-right text-slate-500 text-xs no-print'
+                : 'fa-solid fa-chevron-down text-slate-500 text-xs no-print';
+        }
+
+        function toggleAllFYSchedules(expand) {
+            Object.keys(globalFyMap).forEach((_, idx) => {
+                const body = document.getElementById(`fy-body-${idx}`);
+                const icon = document.getElementById(`fy-icon-${idx}`);
+                if (body && icon) {
+                    if (expand) {
+                        body.classList.remove('hidden');
+                        icon.className = 'fa-solid fa-chevron-down text-slate-500 text-xs no-print';
+                    } else {
+                        body.classList.add('hidden');
+                        icon.className = 'fa-solid fa-chevron-right text-slate-500 text-xs no-print';
+                    }
+                }
+            });
+        }
+
+        function printReport(mode) {
+            const schedSec = document.getElementById('printScheduleSection');
+            const letterSec = document.getElementById('printLetterSection');
+            const mlLetterSec = document.getElementById('printLetterMalayalamSection');
+            const compactSec = document.getElementById('printCompactLetterSection');
+
+            schedSec.classList.add('hidden');
+            letterSec.classList.add('hidden');
+            mlLetterSec.classList.add('hidden');
+            compactSec.classList.add('hidden');
+
+            if (mode === 'letter') {
+                letterSec.classList.remove('hidden');
+            } else if (mode === 'letter_ml') {
+                mlLetterSec.classList.remove('hidden');
+            } else if (mode === 'compact') {
+                compactSec.classList.remove('hidden');
+            } else {
+                schedSec.classList.remove('hidden');
+            }
+
+            window.print();
+            setTimeout(() => {
+                letterSec.classList.add('hidden');
+                mlLetterSec.classList.add('hidden');
+                compactSec.classList.add('hidden');
+                schedSec.classList.remove('hidden');
+            }, 500);
+        }
+
+        function downloadPDF(mode) {
+            const schedSec = document.getElementById('printScheduleSection');
+            const letterSec = document.getElementById('printLetterSection');
+            const mlLetterSec = document.getElementById('printLetterMalayalamSection');
+            const compactSec = document.getElementById('printCompactLetterSection');
+
+            schedSec.classList.add('hidden');
+            letterSec.classList.add('hidden');
+            mlLetterSec.classList.add('hidden');
+            compactSec.classList.add('hidden');
+
+            let element;
+            let filenamePrefix = "KWA_OTS_Report";
+
+            const cNo = (document.getElementById('consumerNo').value || 'Notice').replace(/[^a-zA-Z0-9]/g, '_');
+
+            if (mode === 'letter') {
+                letterSec.classList.remove('hidden');
+                element = letterSec;
+                filenamePrefix = `KWA_OTS_Notice_EN_${cNo}`;
+            } else if (mode === 'letter_ml') {
+                mlLetterSec.classList.remove('hidden');
+                element = mlLetterSec;
+                filenamePrefix = `KWA_OTS_Notice_ML_${cNo}`;
+            } else if (mode === 'compact') {
+                compactSec.classList.remove('hidden');
+                element = compactSec;
+                filenamePrefix = `KWA_OTS_Compact_Notice_${cNo}`;
+            } else {
+                schedSec.classList.remove('hidden');
+                toggleAllFYSchedules(true);
+                element = schedSec;
+                filenamePrefix = `KWA_OTS_Schedule_${cNo}`;
+            }
+
+            showToast("Generating PDF report...", "info");
+
+            const opt = {
+                margin:       [0.4, 0.4, 0.4, 0.4],
+                filename:     `${filenamePrefix}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                showToast("PDF report generated successfully!", "success");
+                if (mode !== 'schedule') {
+                    letterSec.classList.add('hidden');
+                    mlLetterSec.classList.add('hidden');
+                    compactSec.classList.add('hidden');
+                    schedSec.classList.remove('hidden');
+                }
+            }).catch(err => {
+                console.error(err);
+                showToast("Failed to generate PDF report.", "error");
+                letterSec.classList.add('hidden');
+                mlLetterSec.classList.add('hidden');
+                compactSec.classList.add('hidden');
+                schedSec.classList.remove('hidden');
+            });
+        }
+
+        function toggleSavedCasesDrawer() {
+            const drawer = document.getElementById('savedCasesDrawer');
+            drawer.classList.toggle('hidden');
+            if (!drawer.classList.contains('hidden')) updateSavedCasesUI();
+        }
+
+        function getSavedCases() {
+            try {
+                return JSON.parse(localStorage.getItem('ots_saved_cases_kwa') || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function saveCurrentCase() {
+            if (rawRecords.length === 0) {
+                showToast("Load or import billing records before saving a case.", "error");
+                return;
+            }
+            const cases = getSavedCases();
+            const newCase = {
+                id: Date.now(),
+                savedAt: new Date().toLocaleString('en-IN'),
+                consumerName: document.getElementById('consumerName').value,
+                consumerNo: document.getElementById('consumerNo').value,
+                fromDate: document.getElementById('fromDate').value,
+                toDate: document.getElementById('toDate').value,
+                annualRate: document.getElementById('annualRate').value,
+                interestWaiverPct: document.getElementById('interestWaiverPct').value,
+                surchargeWaiverPct: document.getElementById('surchargeWaiverPct').value,
+                installmentCount: document.getElementById('installmentCount').value,
+                circularRef: document.getElementById('circularRef').value,
+                payableOTS: lastMetrics ? lastMetrics.payableAmountOTS : 0,
+                rawRecords: JSON.parse(JSON.stringify(rawRecords))
+            };
+            cases.unshift(newCase);
+            localStorage.setItem('ots_saved_cases_kwa', JSON.stringify(cases.slice(0, 25)));
+            updateSavedCasesUI();
+            showToast(`Saved case for ${newCase.consumerNo || 'Consumer'}`, "success");
+        }
+
+        function loadSavedCase(id) {
+            const found = getSavedCases().find(c => c.id === id);
+            if (!found) return;
+            document.getElementById('consumerName').value = found.consumerName || '';
+            document.getElementById('consumerNo').value = found.consumerNo || '';
+            document.getElementById('fromDate').value = found.fromDate;
+            document.getElementById('toDate').value = found.toDate;
+            document.getElementById('annualRate').value = found.annualRate;
+            document.getElementById('interestWaiverPct').value = found.interestWaiverPct || 0;
+            document.getElementById('surchargeWaiverPct').value = found.surchargeWaiverPct || 0;
+            document.getElementById('installmentCount').value = found.installmentCount || 1;
+            document.getElementById('circularRef').value = found.circularRef || '';
+            rawRecords = found.rawRecords;
+
+            renderRawTable();
+            document.getElementById('tableSection').classList.remove('hidden');
+            triggerOTSCalculation(false);
+            toggleSavedCasesDrawer();
+            showToast(`Loaded case ${found.consumerNo || ''}`, "info");
+        }
+
+        function deleteSavedCase(id) {
+            const updated = getSavedCases().filter(c => c.id !== id);
+            localStorage.setItem('ots_saved_cases_kwa', JSON.stringify(updated));
+            updateSavedCasesUI();
+        }
+
+        function updateSavedCasesUI() {
+            const cases = getSavedCases();
+            document.getElementById('savedCountBadge').innerText = cases.length;
+            const listEl = document.getElementById('savedCasesList');
+            if (cases.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-12 text-xs text-slate-400">No saved consumer cases yet. Click "Save Current Case" above to store a snapshot.</div>`;
+                return;
+            }
+            listEl.innerHTML = cases.map(c => `
+                <div class="p-3.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white shadow-2xs transition flex justify-between items-center gap-2">
+                    <div>
+                        <div class="font-bold text-xs text-slate-800">${c.consumerName || 'Unnamed Consumer'}</div>
+                        <div class="text-[11px] font-mono text-blue-600">${c.consumerNo || 'No ID'} • Payable: ${formatCurrency(c.payableOTS)}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${c.savedAt} (${c.rawRecords.length} rows)</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="loadSavedCase(${c.id})" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold">Load</button>
+                        <button onclick="deleteSavedCase(${c.id})" class="p-1.5 text-rose-400 hover:text-rose-600"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatCurrency(val, includeSymbol = true) {
+            const numStr = (val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return includeSymbol ? '₹' + numStr : numStr;
+        }
+        function formatNumber(val) {
+            return (val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+    </script>
+</body>
+</html>

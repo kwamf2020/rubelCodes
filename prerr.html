@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pre RR letters - KWA</title>
+    <style>
+        @import url('https://smc.org.in/fonts/gayathri.css');
+        * { box-sizing: border-box; font-family: 'Gayathri', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; padding: 16px; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 4px solid #004488; }
+        h2 { margin-top: 0; color: #004488; font-size: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-bottom: 15px; }
+        .col-4 { grid-column: span 12; }
+        @media(min-width: 768px) { .col-4 { grid-column: span 4; } }
+        .col-6 { grid-column: span 12; }
+        @media(min-width: 768px) { .col-6 { grid-column: span 6; } }
+        .col-8 { grid-column: span 12; }
+        @media(min-width: 768px) { .col-8 { grid-column: span 8; } }
+        .col-12 { grid-column: span 12; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #555; text-transform: uppercase; }
+        .form-group input, .form-group textarea, .form-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; font-family: 'Gayathri', sans-serif; background-color: #fff; width: 100%; }
+        .btn { background-color: #004488; color: white; padding: 9px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .letter-page {
+            background: white;
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 18mm;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            font-size: 15px;
+            line-height: 1.45;
+            color: #000;
+            position: relative;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+        .official-header { width: 100%; margin-bottom: 8px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .header-left-info { font-size: 11px; line-height: 1.25; text-align: left; }
+        .header-center-logo { text-align: center; flex-grow: 1; padding: 0 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-box { width: 55px; height: 55px; margin: 0 auto 2px auto; }
+        .logo-box img { width: 100%; height: auto; object-fit: contain; }
+        .kwa-title-ml { font-size: 18px; font-weight: bold; margin-bottom: 1px; text-align: center; width: 100%; }
+        .office-sub-title { font-size: 13.5px; font-weight: bold; line-height: 1.25; text-align: center; width: 100%; }
+        .header-right-info { font-size: 11px; line-height: 1.25; text-align: right; }
+        .file-date-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 10px; font-size: 14px; font-weight: bold; flex-wrap: wrap; gap: 4px; }
+        .address-section { margin-bottom: 10px; }
+        .address-block { margin-bottom: 6px; }
+        .ref-subject { margin-left: 20px; margin-top: 6px; margin-bottom: 10px; }
+        .ref-subject p { margin: 2px 0; }
+        .center-stars { text-align: center; margin: 6px 0; letter-spacing: 2px; font-weight: bold; }
+        .letter-body-p { text-indent: 30px; text-align: justify; margin-bottom: 15px; line-height: 1.5; }
+        .signature-block { float: right; text-align: center; margin-top: 15px; font-size: 15px; }
+        .copy-to-block { clear: both; padding-top: 15px; font-size: 14px; }
+        .copy-to-block ol { margin-top: 3px; padding-left: 20px; }
+        .copy-to-block li { margin-bottom: 3px; }
+        .field-val { font-weight: bold; }
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: none; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .max-w-5xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .letter-page { box-shadow: none; width: 100%; min-height: 277mm; padding: 5mm 10mm; margin: 0; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-4 md:p-6">
+
+<div class="max-w-5xl mx-auto space-y-6">
+    <div class="bg-slate-950 text-white rounded-2xl shadow-xl p-4 no-print flex flex-col lg:flex-row justify-between items-center gap-4 border border-slate-800">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="bg-purple-600 hover:bg-purple-500 p-2.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                <i class="fa-solid fa-house"></i> <span>Home</span>
+            </a>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold">
+            <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
+            <a href="mfaulty.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Meter faulty letters</a>
+            <a href="ots.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">One Time Settlement</a>
+            <a href="prerr.html" class="px-3 py-1.5 bg-purple-600 text-white rounded-lg shadow">Pre RR letters</a>
+            <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
+        </div>
+    </div>
+
+    <div class="card no-print">
+        <h2>Pre-RR Notice Generator</h2>
+        <div class="form-grid">
+            <div class="form-group col-12">
+                <label>Paste Excel Row</label>
+                <textarea id="pastedRow" rows="2" placeholder="Paste a tab-separated row..." oninput="parsePastedRow()"></textarea>
+            </div>
+            <div class="form-group col-4">
+                <label>Sub Division Name & Place</label>
+                <input type="text" id="subDivision" placeholder="Thiruvalla" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>File Number</label>
+                <input type="text" id="fileNo" placeholder="File No" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Office Email ID</label>
+                <input type="email" id="emailId" placeholder="Email" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Date (തീയതി)</label>
+                <input type="text" id="letterDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Consumer No</label>
+                <input type="text" id="consumerNo" placeholder="Consumer No" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Phone</label>
+                <input type="text" id="consumerPhone" placeholder="Phone" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Arrears (തുക)</label>
+                <input type="text" id="arrearsAmount" placeholder="Amount" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-4">
+                <label>Disconnection Date</label>
+                <input type="text" id="disconnDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-8">
+                <label>Consumer Address</label>
+                <textarea id="consumerAddress" rows="1" placeholder="Address" oninput="saveAndPreview()"></textarea>
+            </div>
+            <div class="form-group col-6">
+                <label>പകർപ്പ് 1 (Copy 1)</label>
+                <input type="text" id="copyText1" placeholder="Copy 1" oninput="saveAndPreview()">
+            </div>
+            <div class="form-group col-6">
+                <label>പകർപ്പ് 2 (Copy 2)</label>
+                <input type="text" id="copyText2" placeholder="Copy 2" oninput="saveAndPreview()">
+            </div>
+        </div>
+        <button class="btn" onclick="window.print()" style="float: right;"><i class="fa-solid fa-print mr-1"></i> Print / Export A4 PDF</button>
+        <div style="clear: both;"></div>
+    </div>
+
+    <div class="letter-page">
+        <div class="official-header">
+            <div class="header-flex">
+                <div class="header-left-info" id="headerTelInfo">
+                    Website: www.kwa.kerala.gov.in<br>Tel : 0469-2700748<br>1916 [24X7] [Toll Free]
+                </div>
+                <div class="header-center-logo">
+                    <div class="logo-box"><img src="https://lh3.googleusercontent.com/d/1ExukXbWEfzB1tBE6P24sr8w3l27gPaur" alt="KWA Logo"></div>
+                    <div class="kwa-title-ml"><br>കേരള വാട്ടർ അതോറിറ്റി</div>
+                    <div class="office-sub-title" id="officeSubTitleHtml">
+                        അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയറുടെ കാര്യാലയം,<br><span id="prevSubDivName">തിരുവല്ല</span>
+                    </div>
+                </div>
+                <div class="header-right-info" id="headerEmail">Email : kwaphsdtvla@gmail.com</div>
+            </div>
+        </div>
+
+        <div class="file-date-row">
+            <div>നമ്പർ: <span id="prevFileNo" class="field-val">XXXXX</span></div>
+            <div>തീയതി: <span id="prevDate" class="field-val">dd/mm/yyyy</span></div>
+        </div>
+
+        <div class="address-section">
+            <div class="address-block"><strong>പ്രേഷകൻ</strong><br><span style="margin-left: 20px; display: inline-block;">അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയർ</span></div>
+            <div class="address-block">
+                <strong>സ്വീകർത്താവ്</strong><br>
+                <div style="margin-left: 20px;"><span id="prevAddress" class="field-val">&lt;Address&gt;</span><br>Phone: <span id="prevPhone" class="field-val">&lt;Phone&gt;</span></div>
+            </div>
+        </div>
+
+        <div>
+            <p style="margin-bottom: 4px;">സർ,</p>
+            <div class="ref-subject">
+                <p><strong>വിഷയം:-</strong> KWA-Revenue - വാട്ടർ കണക്ഷന്റെ വാട്ടർ ചാർജ് കുടിശിക - മുൻകൂർ റവന്യൂ റിക്കവറി നോട്ടീസ് നൽകുന്നത് സംബന്ധിച്ച്.</p>
+                <p><strong>സൂചന:-</strong> Con. No. <span id="prevRefConNo" class="field-val">&lt;Consumer No&gt;</span></p>
+            </div>
+            <div class="center-stars">************</div>
+            <p class="letter-body-p">
+                സൂചനയിലേക്ക് ശ്രദ്ധ ക്ഷണിക്കുന്നു. താങ്കളുടെ ഉടമസ്ഥതയിലുള്ള <span id="prevBodyConNo" class="field-val">&lt;Consumer No&gt;</span> നമ്പർ വാട്ടർ കണക്ഷനിൽ വാട്ടർ ചാർജ് കുടിശിക വരുത്തിയതിനാൽ <span id="prevDisconnDate" class="field-val">&lt;Disconn Date&gt;</span>-ൽ കണക്ഷൻ വിച്ഛേദിച്ചിട്ടുള്ളതാണ്. നിലവിലെ വാട്ടർ ചാർജ് കുടിശിക <span id="prevArrear" class="field-val">&lt;Arrear&gt;</span> രൂപയാണ്. ഈ കത്ത് കിട്ടി 15 ദിവസത്തിനുള്ളിൽ വാട്ടർ ചാർജ് കുടിശിക തീർപ്പാക്കണമെന്ന് താങ്കളെ അറിയിക്കുന്നു. വാട്ടർ ചാർജ് കുടിശിക തീർപ്പാക്കാത്തപക്ഷം കുടിശിക പിരിച്ചെടുക്കുന്നതിനായി റവന്യു റിക്കവറി നടപടികൾക്ക് ശുപാർശ ചെയ്യുന്നതാണ്.
+            </p>
+        </div>
+
+        <div class="signature-block">
+            വിശ്വസ്‌തതയോടെ,<br><br><br>അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയർ.
+        </div>
+
+        <div class="copy-to-block">
+            പകർപ്പ്-
+            <ol><li id="prevCopy1">--</li><li id="prevCopy2">--</li></ol>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadSavedState() {
+        const savedOffice = localStorage.getItem('kwa_office_config');
+        if (savedOffice) {
+            try {
+                const cfg = JSON.parse(savedOffice);
+                if (document.getElementById("subDivision")) document.getElementById("subDivision").value = cfg.subDiv || " ";
+                if (document.getElementById("fileNo")) document.getElementById("fileNo").value = cfg.fileNo || " ";
+                if (document.getElementById("emailId")) document.getElementById("emailId").value = cfg.email || " ";
+            } catch(e) {}
+        }
+        const saved = localStorage.getItem('kwa_prerr_state_v2');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (document.getElementById("subDivision")) document.getElementById("subDivision").value = data.subDivision || "";
+                if (document.getElementById("fileNo")) document.getElementById("fileNo").value = data.fileNo || "";
+                if (document.getElementById("emailId")) document.getElementById("emailId").value = data.emailId || "";
+                if (document.getElementById("copyText1")) document.getElementById("copyText1").value = data.copyText1 || "";
+                if (document.getElementById("copyText2")) document.getElementById("copyText2").value = data.copyText2 || "";
+            } catch(e) {}
+        }
+    }
+    function saveAndPreview() {
+        const state = {
+            subDivision: document.getElementById("subDivision")?.value || "",
+            fileNo: document.getElementById("fileNo")?.value || "",
+            emailId: document.getElementById("emailId")?.value || "",
+            copyText1: document.getElementById("copyText1")?.value || "",
+            copyText2: document.getElementById("copyText2")?.value || ""
+        };
+        localStorage.setItem('kwa_prerr_state_v2', JSON.stringify(state));
+        updatePreview();
+    }
+    function setDefaultDate() {
+        const dateEl = document.getElementById("letterDate");
+        if (dateEl && !dateEl.value) {
+            const today = new Date();
+            dateEl.value = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+        }
+    }
+    function parsePastedRow() {
+        const pasteText = document.getElementById("pastedRow").value;
+        if (!pasteText.trim()) return;
+        const cols = pasteText.split('\t').length > 1 ? pasteText.split('\t') : pasteText.split(',');
+        if (cols.length >= 2) {
+            document.getElementById("consumerNo").value = cols[1]?.trim() || "";
+            if (cols.length >= 3) document.getElementById("consumerAddress").value = cols[2]?.trim() || "";
+            if (cols.length >= 4) document.getElementById("consumerPhone").value = cols[3]?.trim() || "";
+            if (cols.length >= 9) document.getElementById("arrearsAmount").value = cols[8]?.trim() || "";
+            if (cols.length >= 10) document.getElementById("disconnDate").value = cols[9]?.trim() || "";
+            saveAndPreview();
+        }
+    }
+    function updatePreview() {
+        const subDivVal = document.getElementById("subDivision")?.value.trim() || "Thiruvalla";
+        const emailVal = document.getElementById("emailId")?.value.trim() || "kwaphsdtvla@gmail.com";
+        const copy1Val = document.getElementById("copyText1")?.value.trim() || "";
+        const copy2Val = document.getElementById("copyText2")?.value.trim() || "";
+
+        if (document.getElementById("prevSubDivName")) document.getElementById("prevSubDivName").innerText = subDivVal;
+        if (document.getElementById("headerEmail")) document.getElementById("headerEmail").innerHTML = `Email : ${emailVal}`;
+
+        const fileNo = document.getElementById("fileNo")?.value.trim() || "";
+        const letterDate = document.getElementById("letterDate")?.value.trim() || "";
+        const consumerPhone = document.getElementById("consumerPhone")?.value.trim() || "";
+        const consumerNo = document.getElementById("consumerNo")?.value.trim() || "";
+        const arrearsAmount = document.getElementById("arrearsAmount")?.value.trim() || "";
+        const disconnDate = document.getElementById("disconnDate")?.value.trim() || "";
+        const consumerAddress = document.getElementById("consumerAddress")?.value.trim() || "";
+
+        if (document.getElementById("prevFileNo")) document.getElementById("prevFileNo").innerText = fileNo || "XXXXX";
+        if (document.getElementById("prevDate")) document.getElementById("prevDate").innerText = letterDate || "dd/mm/yyyy";
+        if (document.getElementById("prevPhone")) document.getElementById("prevPhone").innerText = consumerPhone || "<Phone>";
+        if (document.getElementById("prevRefConNo")) document.getElementById("prevRefConNo").innerText = consumerNo || "<Consumer No>";
+        if (document.getElementById("prevBodyConNo")) document.getElementById("prevBodyConNo").innerText = consumerNo || "<Consumer No>";
+        if (document.getElementById("prevArrear")) document.getElementById("prevArrear").innerText = arrearsAmount || "<Arrear>";
+        if (document.getElementById("prevDisconnDate")) document.getElementById("prevDisconnDate").innerText = disconnDate || "<Disconn Date>";
+        if (document.getElementById("prevCopy1")) document.getElementById("prevCopy1").innerText = copy1Val || "--";
+        if (document.getElementById("prevCopy2")) document.getElementById("prevCopy2").innerText = copy2Val || "--";
+
+        if (document.getElementById("prevAddress")) {
+            document.getElementById("prevAddress").innerHTML = consumerAddress ? consumerAddress.replace(/,/g, ',<br>').replace(/\n/g, '<br>') : "<Address>";
+        }
+    }
+    window.onload = function() { loadSavedState(); setDefaultDate(); updatePreview(); };
+</script>
+</body>
+</html>

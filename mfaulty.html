@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meter faulty letters - KWA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://smc.org.in/fonts/gayathri.css');
+
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .malayalam-text { font-family: 'Gayathri', sans-serif; }
+
+        .letter-page {
+            background: white;
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 18mm;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            font-size: 14.5px;
+            line-height: 1.45;
+            color: #000;
+            position: relative;
+            font-family: 'Gayathri', sans-serif;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+        .official-header { width: 100%; margin-bottom: 8px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .header-left-info { font-size: 11px; line-height: 1.25; text-align: left; }
+        .header-center-logo { text-align: center; flex-grow: 1; padding: 0 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-box { width: 55px; height: 55px; margin: 0 auto 2px auto; }
+        .logo-box img { width: 100%; height: auto; object-fit: contain; }
+        .kwa-title-ml { font-size: 18px; font-weight: bold; margin-bottom: 1px; text-align: center; width: 100%; }
+        .office-sub-title { font-size: 13.5px; font-weight: bold; line-height: 1.25; text-align: center; width: 100%; }
+        .header-right-info { font-size: 11px; line-height: 1.25; text-align: right; }
+        .file-date-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 10px; font-size: 14px; font-weight: bold; flex-wrap: wrap; gap: 4px; }
+        .address-section { margin-bottom: 10px; }
+        .address-block { margin-bottom: 6px; }
+        .ref-subject { margin-left: 20px; margin-top: 6px; margin-bottom: 10px; }
+        .ref-subject p { margin: 2px 0; }
+        .center-stars { text-align: center; margin: 6px 0; letter-spacing: 2px; font-weight: bold; }
+        .letter-body-p { text-indent: 30px; text-align: justify; margin-bottom: 15px; line-height: 1.5; }
+        .signature-block { float: right; text-align: center; margin-top: 15px; font-size: 15px; }
+        .copy-to-block { clear: both; padding-top: 15px; font-size: 14px; }
+        .copy-to-block ol { margin-top: 3px; padding-left: 20px; }
+        .copy-to-block li { margin-bottom: 3px; }
+        .field-val { font-weight: bold; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: none; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .max-w-5xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .letter-page { box-shadow: none; width: 100%; min-height: 277mm; padding: 5mm 10mm; margin: 0; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="p-4 md:p-6">
+
+<div class="max-w-5xl mx-auto space-y-6">
+    <div class="bg-slate-950 text-white rounded-2xl shadow-xl p-4 no-print flex flex-col lg:flex-row justify-between items-center gap-4 border border-slate-800">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="bg-amber-600 hover:bg-amber-500 p-2.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                <i class="fa-solid fa-house"></i> <span>Home</span>
+            </a>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-semibold">
+            <a href="consumer.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Arrear letters to Consumers</a>
+            <a href="mfaulty.html" class="px-3 py-1.5 bg-amber-600 text-white rounded-lg shadow">Meter faulty letters</a>
+            <a href="ots.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">One Time Settlement</a>
+            <a href="prerr.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Pre RR letters</a>
+            <a href="tariff.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg transition border border-slate-800">Tariff Calulator</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 no-print space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3 flex-wrap gap-2">
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-blue-600"></i> Control Panel & Excel Row Input
+            </h2>
+            <div class="flex items-center gap-2">
+                <button onclick="fillSampleData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Load Demo Row
+                </button>
+                <button onclick="triggerPrint()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i> Print A4 PDF
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-12 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Paste eAbacus Excel Row</label>
+                <textarea id="pastedRow" rows="2" placeholder="Paste tab-separated row..." class="p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none font-mono" oninput="parsePastedRow()"></textarea>
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Sub Division Name</label>
+                <input type="text" id="subDivision" placeholder="Thiruvalla" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">File Number</label>
+                <input type="text" id="fileNo" placeholder="File No" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Office Email ID</label>
+                <input type="email" id="emailId" placeholder="Email" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Date</label>
+                <input type="text" id="letterDate" placeholder="dd/mm/yyyy" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Consumer No</label>
+                <input type="text" id="consumerNo" placeholder="Consumer No" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Phone</label>
+                <input type="text" id="consumerPhone" placeholder="Phone" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Replacement Deadline (Days)</label>
+                <input type="text" id="deadlineDays" value="15" placeholder="15" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-8 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Consumer Address</label>
+                <textarea id="consumerAddress" rows="1" placeholder="Address" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></textarea>
+            </div>
+            <div class="md:col-span-6 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Copy 1</label>
+                <input type="text" id="copyText1" placeholder="Copy 1" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+            <div class="md:col-span-6 flex flex-col">
+                <label class="text-xs font-bold text-slate-600 uppercase mb-1">Copy 2</label>
+                <input type="text" id="copyText2" placeholder="Copy 2" oninput="saveAndPreview()" class="p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none">
+            </div>
+        </div>
+    </div>
+
+    <div id="printArea" class="letter-page">
+        <div class="official-header">
+            <div class="header-flex">
+                <div class="header-left-info" id="headerTelInfo">
+                    Website: www.kwa.kerala.gov.in<br>Tel : 0469-2700748<br>1916 [24X7] [Toll Free]
+                </div>
+                <div class="header-center-logo">
+                    <div class="logo-box"><img src="https://lh3.googleusercontent.com/d/1ExukXbWEfzB1tBE6P24sr8w3l27gPaur" alt="KWA Logo"></div>
+                    <div class="kwa-title-ml"><br>കേരള വാട്ടർ അതോറിറ്റി</div>
+                    <div class="office-sub-title" id="officeSubTitleHtml">
+                        അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയറുടെ കാര്യാലയം,<br><span id="prevSubDivName"> </span>
+                    </div>
+                </div>
+                <div class="header-right-info" id="headerEmail">Email : kwaphsdtvla@gmail.com</div>
+            </div>
+        </div>
+
+        <div class="file-date-row">
+            <div>നമ്പർ: <span id="prevFileNo" class="field-val">XXXXX</span></div>
+            <div>തീയതി: <span id="prevDate" class="field-val">dd/mm/yyyy</span></div>
+        </div>
+
+        <div class="address-section">
+            <div class="address-block"><strong>പ്രേഷകൻ</strong><br><span style="margin-left: 20px; display: inline-block;">അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയർ</span></div>
+            <div class="address-block">
+                <strong>സ്വീകർത്താവ്</strong><br>
+                <div style="margin-left: 20px;"><span id="prevAddress" class="field-val">&lt;Address&gt;</span><br>Phone: <span id="prevPhone" class="field-val">&lt;Phone&gt;</span></div>
+            </div>
+        </div>
+
+        <div class="malayalam-text">
+            <p style="margin-bottom: 4px;">സർ,</p>
+            <div class="ref-subject">
+                <p><strong>വിഷയം:-</strong> KWA - താങ്കളുടെ ഉടമസ്ഥതയിലുള്ള വാട്ടർ കണക്ഷന്റെ തകരാറിലായ വാട്ടർ മീറ്റർ മാറ്റിസ്ഥാപിക്കുന്നത് സംബന്ധിച്ച്.</p>
+                <p><strong>സൂചന:-</strong> 1. Con. No. <span id="prevRefConNo" class="field-val">&lt;Consumer No&gt;</span></p>
+            </div>
+            <div class="center-stars">************</div>
+            <p class="letter-body-p">
+                സൂചനയിലേക്ക് ശ്രദ്ധക്ഷണിക്കുന്നു. താങ്കളുടെ ഉടമസ്ഥതയിലുള്ള Con. No. <span id="prevBodyConNo" class="field-val">&lt;Consumer No&gt;</span> എന്ന വാട്ടർ കണക്ഷന്റെ മീറ്റർ തകരാറിലായതായി (Faulty Meter) പരിശോധനയിൽ കണ്ടെത്തിയിട്ടുള്ളതാണ്. വാട്ടർ അതോറിറ്റി നിയമപ്രകാരം എല്ലാ ഉപഭോക്താക്കളും പ്രവർത്തനക്ഷമമായ മീറ്റർ സ്ഥാപിക്കേണ്ടതാണ്. മീറ്റർ തകരാറിലായിരിക്കുന്നതിനാൽ യഥാർത്ഥ ജലഉപയോഗം തിട്ടപ്പെടുത്താൻ കഴിയാത്ത സാഹചര്യം നിലനിൽക്കുന്നു.
+            </p>
+            <p class="letter-body-p">
+                ആയതിനാൽ, ഈ കത്ത് ലഭിച്ച തീയതി മുതൽ <span id="prevDeadline" class="field-val">15</span> ദിവസത്തിനകം സ്വന്തം ചെലവിൽ പുതിയതും അംഗീകൃതവുമായ വാട്ടർ മീറ്റർ കേരള വാട്ടർ അതോറിറ്റിയുടെ അനുമതിയോടെ സ്ഥാപിക്കേണ്ടതാണ്. മീറ്റർ മാറ്റി വെയ്ക്കുന്നതിനായി etapp.kwa.kerala.gov.in എന്ന പോർട്ടൽ വഴി അപേക്ഷ സമർപ്പിക്കേണ്ടതാണ്. മീറ്റർ മാറ്റി സ്ഥാപിക്കാത്ത പക്ഷം വാട്ടർ അതോറിറ്റി ചട്ടപ്രകാരം കണക്ഷൻ വിച്ഛേദിക്കുന്നതുൾപ്പെടെയുള്ള തുടർ നടപടികൾ സ്വീകരിക്കുന്നതാണെന്ന് അറിയിച്ചുകൊള്ളുന്നു.
+            </p>
+        </div>
+
+        <div class="signature-block malayalam-text">
+            വിശ്വസ്‌തതയോടെ,<br><br><br>അസിസ്റ്റന്റ് എക്സിക്യൂട്ടീവ് എൻജിനീയർ.
+        </div>
+
+        <div class="copy-to-block malayalam-text">
+            പകർപ്പ്-
+            <ol><li id="prevCopy1">--</li><li id="prevCopy2">--</li></ol>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadSavedState() {
+        const savedOffice = localStorage.getItem('kwa_office_config');
+        if (savedOffice) {
+            try {
+                const cfg = JSON.parse(savedOffice);
+                if (document.getElementById("subDivision")) document.getElementById("subDivision").value = cfg.subDiv || " ";
+                if (document.getElementById("fileNo")) document.getElementById("fileNo").value = cfg.fileNo ? cfg.fileNo + " " : "";
+                if (document.getElementById("emailId")) document.getElementById("emailId").value = cfg.email || " ";
+            } catch(e) {}
+        }
+        const saved = localStorage.getItem('kwa_mfaulty_state_v2');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (document.getElementById("subDivision")) document.getElementById("subDivision").value = data.subDivision || "";
+                if (document.getElementById("fileNo")) document.getElementById("fileNo").value = data.fileNo || "";
+                if (document.getElementById("emailId")) document.getElementById("emailId").value = data.emailId || "";
+                if (document.getElementById("copyText1")) document.getElementById("copyText1").value = data.copyText1 || "";
+                if (document.getElementById("copyText2")) document.getElementById("copyText2").value = data.copyText2 || "";
+            } catch(e) {}
+        }
+    }
+    function saveAndPreview() {
+        const state = {
+            subDivision: document.getElementById("subDivision")?.value || "",
+            fileNo: document.getElementById("fileNo")?.value || "",
+            emailId: document.getElementById("emailId")?.value || "",
+            copyText1: document.getElementById("copyText1")?.value || "",
+            copyText2: document.getElementById("copyText2")?.value || ""
+        };
+        localStorage.setItem('kwa_mfaulty_state_v2', JSON.stringify(state));
+        updatePreview();
+    }
+    function setDefaultDate() {
+        const dateEl = document.getElementById("letterDate");
+        if (dateEl && !dateEl.value) {
+            const today = new Date();
+            dateEl.value = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+        }
+    }
+    function fillSampleData() {
+        document.getElementById("pastedRow").value = "1\tABC/123/D\tRadhamani K, Sreemandiram, Kavumbhagom PO, Thiruvalla\t9447112233\tR-05\t18/01/2026\tFaulty\t--";
+        parsePastedRow();
+        saveAndPreview();
+        Swal.fire({ icon: 'success', title: 'Demo Loaded!', timer: 900, showConfirmButton: false });
+    }
+    function parsePastedRow() {
+        const pasteText = document.getElementById("pastedRow").value;
+        if (!pasteText.trim()) return;
+        const cols = pasteText.split('\t').length > 1 ? pasteText.split('\t') : pasteText.split(',');
+        if (cols.length >= 4) {
+            document.getElementById("consumerNo").value = cols[1]?.trim() || "";
+            document.getElementById("consumerAddress").value = cols[2]?.trim() || "";
+            document.getElementById("consumerPhone").value = cols[3]?.trim() || "";
+            updatePreview();
+        }
+    }
+    function updatePreview() {
+        const subDivVal = document.getElementById("subDivision")?.value.trim() || " ";
+        const emailVal = document.getElementById("emailId")?.value.trim() || " ";
+        const copy1Val = document.getElementById("copyText1")?.value.trim() || "";
+        const copy2Val = document.getElementById("copyText2")?.value.trim() || "";
+
+        if (document.getElementById("prevSubDivName")) document.getElementById("prevSubDivName").innerText = subDivVal;
+        if (document.getElementById("headerEmail")) document.getElementById("headerEmail").innerHTML = `Email : ${emailVal}`;
+
+        const fileNo = document.getElementById("fileNo")?.value.trim() || "";
+        const letterDate = document.getElementById("letterDate")?.value.trim() || "";
+        const consumerPhone = document.getElementById("consumerPhone")?.value.trim() || "";
+        const consumerNo = document.getElementById("consumerNo")?.value.trim() || "";
+        const deadlineDays = document.getElementById("deadlineDays")?.value.trim() || "15";
+        const consumerAddress = document.getElementById("consumerAddress")?.value.trim() || "";
+
+        if (document.getElementById("prevFileNo")) document.getElementById("prevFileNo").innerText = fileNo || "XXXXX";
+        if (document.getElementById("prevDate")) document.getElementById("prevDate").innerText = letterDate || "dd/mm/yyyy";
+        if (document.getElementById("prevPhone")) document.getElementById("prevPhone").innerText = consumerPhone || "<Phone>";
+        if (document.getElementById("prevRefConNo")) document.getElementById("prevRefConNo").innerText = consumerNo || "<Consumer No>";
+        if (document.getElementById("prevBodyConNo")) document.getElementById("prevBodyConNo").innerText = consumerNo || "<Consumer No>";
+        if (document.getElementById("prevDeadline")) document.getElementById("prevDeadline").innerText = deadlineDays || "15";
+        if (document.getElementById("prevCopy1")) document.getElementById("prevCopy1").innerText = copy1Val || "--";
+        if (document.getElementById("prevCopy2")) document.getElementById("prevCopy2").innerText = copy2Val || "--";
+
+        if (document.getElementById("prevAddress")) {
+            document.getElementById("prevAddress").innerHTML = consumerAddress ? consumerAddress.replace(/,/g, ',<br>').replace(/\n/g, '<br>') : "<Address>";
+        }
+    }
+    function triggerPrint() {
+        const content = document.getElementById('printArea').innerHTML;
+        const printWindow = window.open('', '_blank', 'width=900,height=650');
+        printWindow.document.write(`<!DOCTYPE html><html lang="ml"><head><meta charset="UTF-8"><title>Print View</title><style>@import url('https://smc.org.in/fonts/gayathri.css');@page{size:A4 portrait;margin:0;}body{font-family:'Gayathri',sans-serif;background:#fff;color:#000;margin:0;padding:12mm 18mm;font-size:14.5px;line-height:1.45;}.letter-page{width:100%;height:100%;}.official-header{width:100%;margin-bottom:8px;border-bottom:1.5px solid #000;padding-bottom:6px;}.header-flex{display:flex;justify-content:space-between;align-items:center;}.header-left-info{font-size:11px;line-height:1.25;text-align:left;width:25%;}.header-center-logo{text-align:center;flex-grow:1;padding:0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;}.logo-box{width:55px;height:55px;margin:0 auto 2px auto;}.logo-box img{width:100%;height:auto;object-fit:contain;}.kwa-title-ml{font-size:18px;font-weight:bold;margin-bottom:1px;text-align:center;width:100%;}.office-sub-title{font-size:13.5px;font-weight:bold;line-height:1.25;text-align:center;width:100%;}.header-right-info{font-size:11px;line-height:1.25;text-align:right;width:25%;}.file-date-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:10px;font-size:14px;font-weight:bold;}.address-section{margin-bottom:10px;}.address-block{margin-bottom:6px;}.ref-subject{margin-left:20px;margin-top:6px;margin-bottom:10px;}.ref-subject p{margin:2px 0;}.center-stars{text-align:center;margin:6px 0;letter-spacing:2px;font-weight:bold;}.letter-body-p{text-indent:30px;text-align:justify;margin-bottom:15px;line-height:1.5;}.signature-block{float:right;text-align:center;margin-top:15px;font-size:15px;}.copy-to-block{clear:both;padding-top:15px;font-size:14px;}.copy-to-block ol{margin-top:3px;padding-left:20px;}.copy-to-block li{margin-bottom:3px;}.field-val{font-weight:bold;}</style></head><body><div class="letter-page">${content}</div><script>window.onload=function(){setTimeout(function(){window.print();window.close();},300);}<\/script></body></html>`);
+        printWindow.document.close();
+    }
+    window.onload = function() { loadSavedState(); setDefaultDate(); updatePreview(); };
+</script>
+</body>
+</html>
