@@ -87,9 +87,7 @@
                     </div>
                     <!-- Quick action buttons on mobile top bar -->
                     <div class="flex items-center gap-1.5">
-                        <button onclick="toggleSavedCasesDrawer()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition border border-slate-700 flex items-center gap-1.5">
-                            <i class="fa-solid fa-box-archive text-amber-400"></i> <span class="hidden sm:inline">Saved</span> <span id="savedCountBadge" class="bg-slate-950 text-slate-300 px-1.5 py-0.2 rounded text-[10px] font-mono">0</span>
-                        </button>
+                        
                         <button onclick="loadSampleData()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo</span>
                         </button>
@@ -310,26 +308,7 @@
                             </div>
                         </div>
 
-                        <!-- PDF Export Options -->
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                                <i class="fa-solid fa-file-pdf text-rose-400"></i> Export PDF
-                            </span>
-                            <div class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
-                                <button onclick="downloadPDF('schedule')" class="px-2.5 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="Download Detailed FY Schedule PDF">
-                                    Schedule
-                                </button>
-                                <button onclick="downloadPDF('letter')" class="px-2.5 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="Download English Notice PDF">
-                                    Notice (EN)
-                                </button>
-                                <button onclick="downloadPDF('letter_ml')" class="px-2.5 py-1.5 hover:bg-slate-700 text-emerald-300 rounded-lg text-xs font-semibold transition" title="Download Malayalam Notice PDF">
-                                    Notice (ML)
-                                </button>
-                                <button onclick="downloadPDF('compact')" class="px-2.5 py-1.5 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition" title="Download Compact Notice PDF">
-                                    Compact
-                                </button>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
 
