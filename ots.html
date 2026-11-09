@@ -39,6 +39,11 @@
             .page-break { page-break-before: always; }
         }
         .print-only { display: none; }
+        /* Ledger table: no up/down spinner arrows on number inputs */
+        #rawTableBody input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+        #rawTableBody input[type=number]::-webkit-outer-spin-button,
+        #rawTableBody input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+        #rawTableBody input[readonly] { background-color: #f1f5f9; color: #475569; cursor: default; }
         /* ===== Guided wizard ===== */
         .wz-off { display: none !important; }
         @media print { .wz-off:not(.no-print) { display: block !important; } }
@@ -232,6 +237,21 @@
                         <button onclick="triggerOTSCalculation(true)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
                             <i class="fa-solid fa-bolt"></i> Recalculate OTS Now
                         </button>
+                    </div>
+                </div>
+
+                <div id="ledgerMismatchBox" class="hidden mb-3 p-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs no-print">
+                    <div class="flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation mt-0.5 text-amber-600"></i>
+                        <div class="flex-1">
+                            <div class="font-bold">Ledger formula mismatch</div>
+                            <div id="ledgerMismatchMsg" class="mt-0.5"></div>
+                            <div class="text-[11px] text-amber-800/80 mt-1">Formula: Balance = Dues + Water + Adj + Surcharge + Fine &minus; Paid, and Dues = previous Balance.</div>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <button onclick="acceptLedgerMismatch()" class="px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 font-semibold">Accept &amp; keep eAbacus values</button>
+                                <button onclick="rejectLedgerMismatch()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold">Reject &amp; fix using formula</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -742,7 +762,7 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="w-full text-center py-4 mt-auto border-t border-slate-300 text-slate-700 text-xs px-2 no-print">
+    <footer data-steps="5" class="w-full text-center py-4 pb-24 mt-auto border-t border-slate-300 text-slate-700 text-xs px-2 no-print">
         Designed and developed by <span class="font-bold">Bipin Joseph, Jr.Supdt</span>. Please whatsapp your suggestions to <a href="https://wa.me/919961900910" class="text-blue-900 font-bold underline">9961900910</a>.
     </footer>
 
@@ -881,6 +901,7 @@
                 AUTOSAVE_FIELDS.forEach(id => { fields[id] = document.getElementById(id).value; });
                 fields.reconcile = document.getElementById('reconcileLedgerToggle').checked;
                 fields.autoCalc = document.getElementById('autoCalcToggle').checked;
+                fields.ledgerAccepted = ledgerAccepted;
                 localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ fields, rawRecords, step: typeof wzStep !== 'undefined' ? wzStep : 1 }));
             } catch (e) { /* storage unavailable: app still works, just without persistence */ }
         }
@@ -897,6 +918,7 @@
                 AUTOSAVE_FIELDS.forEach(id => { if (data.fields[id] !== undefined) document.getElementById(id).value = data.fields[id]; });
                 if (typeof data.fields.reconcile === 'boolean') document.getElementById('reconcileLedgerToggle').checked = data.fields.reconcile;
                 if (typeof data.fields.autoCalc === 'boolean') document.getElementById('autoCalcToggle').checked = data.fields.autoCalc;
+                ledgerAccepted = data.fields.ledgerAccepted === true;
                 rawRecords = Array.isArray(data.rawRecords) ? data.rawRecords : [];
                 autosaveLocked = false;
                 return data;
@@ -910,30 +932,128 @@
             }
         }
 
+        // ---- Ledger auto-calculation ----
+        // Balance = Dues + Water + Adj + Surcharge + Fine - Paid
+        // Dues    = previous row's Balance (first row keeps its own opening dues)
+        const r2 = v => Math.round((Number(v) + Number.EPSILON) * 100) / 100;
+        const LEDGER_COLS = ['ob', 'demand', 'surcharge', 'fine', 'adj', 'receipt', 'total'];
+
+        function calcRowTotal(r) {
+            return r2((r.ob || 0) + (r.demand || 0) + (r.adj || 0) + (r.surcharge || 0) + (r.fine || 0) - (r.receipt || 0));
+        }
+
+        // Recalculate rows from `fromIndex` downwards (carry-forward). Returns nothing; updates data only.
+        function recalcLedger(fromIndex = 0) {
+            for (let i = Math.max(0, fromIndex); i < rawRecords.length; i++) {
+                if (i > 0) rawRecords[i].ob = r2(rawRecords[i - 1].total);
+                rawRecords[i].total = calcRowTotal(rawRecords[i]);
+            }
+        }
+
+        // Push calculated Dues / Balance values into the existing inputs (keeps cursor focus while typing).
+        function refreshLedgerCells(fromIndex = 0) {
+            for (let i = Math.max(0, fromIndex); i < rawRecords.length; i++) {
+                const ob = document.getElementById(`cell-ob-${i}`);
+                const tot = document.getElementById(`cell-total-${i}`);
+                if (ob && document.activeElement !== ob) ob.value = rawRecords[i].ob;
+                if (tot) tot.value = rawRecords[i].total;
+            }
+        }
+
+        // ---- Formula mismatch check (soft warning: user can accept or reject) ----
+        let ledgerAccepted = false;
+
+        function ledgerMismatches() {
+            const out = [];
+            rawRecords.forEach((r, i) => {
+                const calc = calcRowTotal(r);
+                const balDiff = r2(r.total - calc);
+                const duesDiff = i > 0 ? r2(r.ob - rawRecords[i - 1].total) : 0;
+                if (Math.abs(balDiff) > 0.01 || Math.abs(duesDiff) > 0.01) out.push({ i, balDiff, duesDiff });
+            });
+            return out;
+        }
+
+        function checkLedgerMismatch() {
+            const box = document.getElementById('ledgerMismatchBox');
+            if (!box) return;
+            const list = ledgerAccepted ? [] : ledgerMismatches();
+            const bad = new Set(list.map(m => m.i));
+            rawRecords.forEach((r, i) => {
+                ['ob', 'total'].forEach(f => {
+                    const el = document.getElementById(`cell-${f}-${i}`);
+                    if (el) el.classList.toggle('!bg-amber-100', bad.has(i));
+                });
+            });
+            if (list.length === 0) { box.classList.add('hidden'); return; }
+            const rows = list.slice(0, 5).map(m => {
+                const parts = [];
+                if (Math.abs(m.balDiff) > 0.01) parts.push(`balance differs by ${m.balDiff.toFixed(2)}`);
+                if (Math.abs(m.duesDiff) > 0.01) parts.push(`dues differ from previous balance by ${m.duesDiff.toFixed(2)}`);
+                return `#${m.i + 1} (${parts.join(', ')})`;
+            }).join('; ');
+            document.getElementById('ledgerMismatchMsg').innerText =
+                `${list.length} row(s) do not follow the formula: ${rows}${list.length > 5 ? ' ...' : ''}. Highlighted rows show the difference.`;
+            box.classList.remove('hidden');
+        }
+
+        function acceptLedgerMismatch() {
+            ledgerAccepted = true;
+            checkLedgerMismatch();
+            autosave();
+            showToast('Difference accepted. eAbacus values kept as imported.', 'info');
+        }
+
+        function rejectLedgerMismatch() {
+            ledgerAccepted = false;
+            recalcLedger(0);
+            renderRawTable();
+            handleParamChange();
+            showToast('Ledger corrected using the formula.', 'success');
+        }
+
         function renderRawTable() {
             autosave();
             const tbody = document.getElementById('rawTableBody');
             document.getElementById('recordCount').innerText = rawRecords.length;
 
+            const inp = (i, f, cls = '', wrap = 'border-slate-200') =>
+                `<input type="number" step="0.01" inputmode="decimal" value="${rawRecords[i][f]}" onwheel="this.blur()" oninput="updateRecord(${i}, '${f}', this.value, true)" onchange="updateRecord(${i}, '${f}', this.value)" class="w-20 px-2 py-1 border ${wrap} rounded text-xs text-right font-mono ${cls}">`;
+
             tbody.innerHTML = rawRecords.map((r, i) => `
                 <tr class="hover:bg-blue-50/30 transition">
                     <td class="px-3 py-1.5 font-mono text-slate-400 text-center">${i + 1}</td>
                     <td class="px-2 py-1.5"><input type="text" value="${r.date}" onchange="updateRecord(${i}, 'date', this.value)" class="w-24 px-2 py-1 border border-slate-200 rounded text-xs font-mono"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.ob}" onchange="updateRecord(${i}, 'ob', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.demand}" onchange="updateRecord(${i}, 'demand', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.surcharge}" onchange="updateRecord(${i}, 'surcharge', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
-                    <td class="px-2 py-1.5 bg-indigo-50/40"><input type="number" step="0.01" value="${r.fine}" onchange="updateRecord(${i}, 'fine', this.value)" class="w-20 px-2 py-1 border border-indigo-200 bg-white rounded text-xs text-right font-mono font-semibold text-indigo-700"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.adj}" onchange="updateRecord(${i}, 'adj', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.receipt}" onchange="updateRecord(${i}, 'receipt', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono"></td>
-                    <td class="px-2 py-1.5"><input type="number" step="0.01" value="${r.total}" onchange="updateRecord(${i}, 'total', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono font-bold text-slate-800"></td>
+                    <td class="px-2 py-1.5">${i === 0
+                        ? `<input id="cell-ob-${i}" type="number" step="0.01" inputmode="decimal" value="${r.ob}" onwheel="this.blur()" oninput="updateRecord(${i}, 'ob', this.value, true)" onchange="updateRecord(${i}, 'ob', this.value)" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono" title="Opening dues (first row only)">`
+                        : `<input id="cell-ob-${i}" type="number" value="${r.ob}" readonly tabindex="-1" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono" title="Auto = previous row Balance">`}</td>
+                    <td class="px-2 py-1.5">${inp(i, 'demand')}</td>
+                    <td class="px-2 py-1.5">${inp(i, 'surcharge')}</td>
+                    <td class="px-2 py-1.5 bg-indigo-50/40">${inp(i, 'fine', 'bg-white font-semibold text-indigo-700', 'border-indigo-200')}</td>
+                    <td class="px-2 py-1.5">${inp(i, 'adj')}</td>
+                    <td class="px-2 py-1.5">${inp(i, 'receipt')}</td>
+                    <td class="px-2 py-1.5"><input id="cell-total-${i}" type="number" value="${r.total}" readonly tabindex="-1" class="w-20 px-2 py-1 border border-slate-200 rounded text-xs text-right font-mono font-bold text-slate-800" title="Auto = Dues + Water + Adj + Surcharge + Fine - Paid"></td>
                     <td class="px-2 py-1.5 text-center"><button onclick="deleteRow(${i})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash-can"></i></button></td>
                 </tr>
             `).join('');
+            checkLedgerMismatch();
         }
 
-        function updateRecord(index, field, value) {
-            if (field === 'date') rawRecords[index].date = value.trim();
-            else rawRecords[index][field] = parseFloat(value) || 0;
+        // live = true  -> fired on every keystroke: recalc ledger + refresh cells only (cheap, keeps focus)
+        // live = false -> fired on commit (change/blur): also re-run OTS calculation
+        function updateRecord(index, field, value, live = false) {
+            if (!rawRecords[index]) return;
+            if (field === 'date') {
+                rawRecords[index].date = value.trim();
+            } else {
+                rawRecords[index][field] = parseFloat(value) || 0;
+                recalcLedger(index);
+                refreshLedgerCells(index);
+            }
+            if (live) { autosave(); return; }
+            // Commit: make sure every displayed value is final, then recompute OTS
+            if (field !== 'date') refreshLedgerCells(index);
+            checkLedgerMismatch();
             handleParamChange();
         }
 
@@ -947,8 +1067,9 @@
                 fine: 0,
                 adj: 0,
                 receipt: 0,
-                total: lastTotal + 1000
+                total: 0
             });
+            recalcLedger(rawRecords.length - 1);
             renderRawTable();
             handleParamChange();
             showToast("Added new billing row.", "info");
@@ -956,12 +1077,14 @@
 
         function deleteRow(index) {
             rawRecords.splice(index, 1);
-            renderRawTable();
             if (rawRecords.length === 0) {
+                renderRawTable();
                 document.getElementById('tableSection').classList.add('hidden');
                 document.getElementById('summaryCard').classList.add('hidden');
                 document.getElementById('otsReportCard').classList.add('hidden');
             } else {
+                recalcLedger(index);   // next row's Dues now follows the new previous row
+                renderRawTable();
                 handleParamChange();
             }
         }
@@ -1581,6 +1704,7 @@
     // Auto-guidance hooks: wrap existing actions, never alter them
     const _parse = parsePastedData;
     parsePastedData = function () {
+        ledgerAccepted = false;
         _parse();
         if (rawRecords.length && wzStep === 2) {
             $w('wzCount').innerText = `${rawRecords.length} billing entries loaded`;
@@ -1589,7 +1713,7 @@
         }
     };
     const _demo = loadSampleData;
-    loadSampleData = function () { _demo(); wzMax = 5; wzGo(4); };
+    loadSampleData = function () { ledgerAccepted = false; _demo(); wzMax = 5; wzGo(4); };
     const _reset = resetApp;
     resetApp = function () { _reset(); wzMax = 1; wzGo(1); };
 
