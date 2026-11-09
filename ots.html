@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kerala Water Authority - One Time Settlement (OTS) Suite</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for Visual Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- html2pdf.js for Client-Side PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap');
@@ -41,76 +39,65 @@
             .page-break { page-break-before: always; }
         }
         .print-only { display: none; }
+        /* ===== Guided wizard ===== */
+        .wz-off { display: none !important; }
+        @media print { .wz-off:not(.no-print) { display: block !important; } }
+        [data-steps="1"] input, [data-steps="3"] input, [data-steps="3"] select, #pasteInput { font-size: 15px !important; padding: .6rem .75rem !important; border-radius: .75rem !important; }
+        [data-steps="1"] label, [data-steps="3"] label { font-size: 13px !important; }
+        .wz-dot { width: 2.25rem; height: 2.25rem; border-radius: 9999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; border:2px solid #cbd5e1; color:#64748b; background:#fff; }
+        .wz-done .wz-dot { background:#16a34a; border-color:#16a34a; color:#fff; }
+        .wz-cur .wz-dot { background:#2563eb; border-color:#2563eb; color:#fff; box-shadow:0 0 0 4px #dbeafe; }
+        .wz-lbl { font-size:.7rem; font-weight:600; color:#64748b; margin-top:.35rem; text-align:center; }
+        .wz-cur .wz-lbl { color:#1d4ed8; }
+        @media (max-width:639px){ .wz-lbl{ display:none; } .wz-cur .wz-lbl{ display:block; position:absolute; left:0; right:0; top:3rem; } #wzSteps{ margin-bottom:1.2rem; position:relative; } }
+        @keyframes wzPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(37,99,235,.55);} 50%{ box-shadow:0 0 0 10px rgba(37,99,235,0);} }
+        .wz-pulse { animation: wzPulse 1.2s ease-in-out 4; }
+        .wz-bad { border-color:#e11d48 !important; box-shadow:0 0 0 3px #ffe4e6 !important; }
     </style>
 </head>
-<body class="p-3 md:p-6 min-h-screen pb-16 selection:bg-blue-600 selection:text-white">
+<body class="p-3 md:p-6 min-h-screen pb-28 selection:bg-blue-600 selection:text-white">
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
 
-    <!-- Saved Cases Slide-Over Drawer -->
-    <div id="savedCasesDrawer" class="fixed inset-0 z-50 hidden no-print">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="toggleSavedCasesDrawer()"></div>
-        <div class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl border-l border-slate-200 flex flex-col z-10">
-            <div class="p-4 sm:p-5 border-b border-slate-200 flex justify-between items-center bg-slate-900 text-white">
-                <div class="flex items-center gap-2.5">
-                    <i class="fa-solid fa-folder-tree text-blue-400 text-lg"></i>
-                    <div>
-                        <h3 class="font-bold text-sm">Saved Consumer Cases</h3>
-                        <p class="text-[11px] text-slate-400">Stored locally in your browser</p>
-                    </div>
-                </div>
-                <button onclick="toggleSavedCasesDrawer()" class="text-slate-400 hover:text-white p-1.5 rounded-lg">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="p-3 sm:p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <span class="text-xs font-semibold text-slate-600">Current Active Consumer</span>
-                <button onclick="saveCurrentCase()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Current Case
-                </button>
-            </div>
-            <div id="savedCasesList" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-        </div>
-    </div>
-
     <div class="max-w-5xl mx-auto space-y-4 md:space-y-6">
         <!-- MOBILE-OPTIMIZED APP HEADER NAVIGATION -->
         <header class="bg-slate-950 text-white rounded-2xl shadow-xl p-3 md:p-4 no-print border border-slate-800">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
-                            <i class="fa-solid fa-house"></i> <span>Home</span>
-                        </a>
-                        <span class="text-xs font-bold text-slate-300">OTS Suite</span>
-                    </div>
-                    <!-- Quick action buttons on mobile top bar -->
-                    <div class="flex items-center gap-1.5">
-                        
-                        <button onclick="loadSampleData()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo</span>
-                        </button>
-                        <button onclick="resetApp()" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
-                            <i class="fa-solid fa-rotate-left"></i>
-                        </button>
-                    </div>
+            <div class="flex items-center justify-between gap-3 w-full">
+                <div class="flex items-center gap-2.5">
+                    <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-xl shadow text-white transition flex items-center gap-1.5 text-xs font-bold" title="Home">
+                        <i class="fa-solid fa-house"></i> <span>Home</span>
+                    </a>
+                    <span class="text-xs font-bold text-slate-300">OTS Calculator</span>
                 </div>
-
-                <!-- Smooth Horizontal Swipe Nav on Mobile -->
-               
+                <div class="flex items-center gap-1.5 ml-auto">
+                    <button onclick="loadSampleData()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo</span>
+                    </button>
+                    <button onclick="resetApp()" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
             </div>
         </header>
+
+        <!-- GUIDED WIZARD: stepper + instructions -->
+        <div id="wzHead" class="no-print bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+            <ol id="wzSteps" class="flex items-start justify-between gap-1"></ol>
+            <div class="h-1.5 bg-slate-100 rounded-full mt-4 overflow-hidden"><div id="wzBar" class="h-full bg-blue-600 rounded-full transition-all duration-300"></div></div>
+            <h1 id="wzTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-4"></h1>
+            <p id="wzHelp" class="text-sm text-slate-600 mt-1"></p>
+        </div>
 
         <main class="space-y-4 md:space-y-6">
 
         <!-- SECTION 1: Consumer Details & OTS Policy Levers -->
-        <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
-            <div class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-3">
+        <div data-steps="1 3" class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
+            <div data-steps="0" class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-3">
                 <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-blue-600"></i> 1. Consumer Profile & OTS Policy Configuration
                 </h2>
-                <div class="flex flex-wrap items-center gap-3">
+                <div id="wzToggles" class="flex flex-col gap-2">
                     <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200" title="Reconciles each row with the eAbacus Closing Balance column so cumulative demands or prior write-offs are never double-counted">
                         <input type="checkbox" id="reconcileLedgerToggle" checked onchange="handleParamChange()" class="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
                         <span>Auto-Reconcile with eAbacus Balance</span>
@@ -124,7 +111,7 @@
 
             <div class="p-4 sm:p-6 space-y-4">
                 <!-- Primary Consumer & Date Fields -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div data-steps="1" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Consumer Name / Authority</label>
                         <div class="relative">
@@ -157,7 +144,7 @@
                 </div>
 
                 <!-- Advanced Policy Levers -->
-                <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-slate-50/60 p-3 sm:p-4 rounded-xl border border-slate-200/60">
+                <div data-steps="3" class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/60 p-3 sm:p-4 rounded-xl border border-slate-200/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Additional OTS Interest Waiver (%)</label>
                         <div class="relative">
@@ -194,8 +181,13 @@
             </div>
         </div>
 
+        <details data-steps="3" class="no-print bg-white rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-semibold text-slate-700">Advanced calculation switches (optional)</summary>
+            <div id="wzAdvBody" class="mt-3"></div>
+        </details>
+
         <!-- SECTION 2: Paste Data from eAbacus DCB -->
-        <div class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
+        <div data-steps="2" class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
             <div class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80 flex flex-wrap justify-between items-center gap-2">
                 <div>
                     <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -266,7 +258,7 @@
         </div>
 
         <!-- SECTION 3: Executive Summary Dashboard & Visual Analytics -->
-        <div id="summaryCard" class="hidden space-y-4 md:space-y-6">
+        <div id="summaryCard" data-steps="4" class="hidden space-y-4 md:space-y-6">
             
             <!-- Dark Executive KPI Banner & Multi-Report Actions -->
             <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white rounded-2xl shadow-xl p-4 sm:p-6 border border-slate-800 no-print">
@@ -400,7 +392,7 @@
         </div>
 
         <!-- SECTION 4: Detailed FY Schedules & Printable Outputs -->
-        <div id="otsReportCard" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-6 card">
+        <div id="otsReportCard" data-steps="5" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-6 card">
 
             <!-- REPORT 1: Standard Calculation Schedule -->
             <div id="printScheduleSection">
@@ -440,8 +432,8 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer bg-slate-100 px-2.5 py-1.5 rounded-lg">
-                            <input type="checkbox" id="activeMonthsOnlyToggle" checked onchange="renderFYSchedules()" class="rounded text-blue-600">
-                            <span>Show Active Event Months Only</span>
+                            <input type="checkbox" id="activeMonthsOnlyToggle" onchange="renderFYSchedules()" class="rounded text-blue-600">
+                            <span>Show Billing-Event Months Only (all months are counted in interest)</span>
                         </label>
                         <button onclick="toggleAllFYSchedules(true)" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
                             <i class="fa-solid fa-angles-down mr-1"></i> Expand All
@@ -739,6 +731,15 @@
 
         </main>
     </div>
+    <div id="wzNav" class="no-print fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-3 py-3">
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+            <button id="wzBack" onclick="wzBack()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold"><i class="fa-solid fa-arrow-left mr-1.5"></i>Back</button>
+            <span id="wzCount" class="text-xs text-slate-500 hidden sm:inline"></span>
+            <button id="wzNext" onclick="wzNext()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow"></button>
+        </div>
+    </div>
+    <div class="hidden">
+    </div>
 
     <!-- FOOTER -->
     <footer class="w-full text-center py-4 mt-auto border-t border-slate-300 text-slate-700 text-xs px-2 no-print">
@@ -765,17 +766,18 @@
         let globalFyMap = {};
         let globalFySummaries = [];
         let lastMetrics = null;
+        let lastChartArgs = null;
         let comparisonChartInstance = null;
         let fyTrendChartInstance = null;
 
-        window.onload = function() {
+        function stampToday() {
             const now = new Date();
-            const todayDDMMYYYY = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
-            document.getElementById('printDate').innerText = todayDDMMYYYY;
-            document.getElementById('letterDate').innerText = todayDDMMYYYY;
-            document.getElementById('mlLetterDate').innerText = todayDDMMYYYY;
-            document.getElementById('compactDate').innerText = todayDDMMYYYY;
-            updateSavedCasesUI();
+            const t = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+            ['printDate', 'letterDate', 'mlLetterDate', 'compactDate'].forEach(id => { const e = document.getElementById(id); if (e) e.innerText = t; });
+        }
+
+        window.onload = function() {
+            stampToday();
         };
 
         function formatDateDDMMYYYY(dateInput) {
@@ -840,7 +842,7 @@
             document.getElementById('surchargeWaiverPct').value = "0";
             document.getElementById('installmentCount').value = "1";
             document.getElementById('reconcileLedgerToggle').checked = true;
-            document.getElementById('activeMonthsOnlyToggle').checked = true;
+            document.getElementById('activeMonthsOnlyToggle').checked = false;
 
             rawRecords = JSON.parse(JSON.stringify(SAMPLE_DATA_RAW));
             renderRawTable();
@@ -863,16 +865,53 @@
             document.getElementById('tableSection').classList.add('hidden');
             document.getElementById('summaryCard').classList.add('hidden');
             document.getElementById('otsReportCard').classList.add('hidden');
+            clearAutosave();
             showToast("Workspace reset.", "info");
         }
 
+        // ===== Automatic persistence (replaces manual "saved cases") =====
+        const AUTOSAVE_KEY = 'ots_autosave_kwa_v1';
+        const AUTOSAVE_FIELDS = ['consumerName', 'consumerNo', 'fromDate', 'toDate', 'annualRate', 'interestWaiverPct', 'surchargeWaiverPct', 'installmentCount', 'circularRef'];
+        let autosaveLocked = false;
+
+        function autosave() {
+            if (autosaveLocked) return;
+            try {
+                const fields = {};
+                AUTOSAVE_FIELDS.forEach(id => { fields[id] = document.getElementById(id).value; });
+                fields.reconcile = document.getElementById('reconcileLedgerToggle').checked;
+                fields.autoCalc = document.getElementById('autoCalcToggle').checked;
+                localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ fields, rawRecords, step: typeof wzStep !== 'undefined' ? wzStep : 1 }));
+            } catch (e) { /* storage unavailable: app still works, just without persistence */ }
+        }
+
+        function clearAutosave() {
+            try { localStorage.removeItem(AUTOSAVE_KEY); } catch (e) {}
+        }
+
+        function restoreAutosave() {
+            try {
+                const data = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null');
+                if (!data || !data.fields) return null;
+                autosaveLocked = true;
+                AUTOSAVE_FIELDS.forEach(id => { if (data.fields[id] !== undefined) document.getElementById(id).value = data.fields[id]; });
+                if (typeof data.fields.reconcile === 'boolean') document.getElementById('reconcileLedgerToggle').checked = data.fields.reconcile;
+                if (typeof data.fields.autoCalc === 'boolean') document.getElementById('autoCalcToggle').checked = data.fields.autoCalc;
+                rawRecords = Array.isArray(data.rawRecords) ? data.rawRecords : [];
+                autosaveLocked = false;
+                return data;
+            } catch (e) { autosaveLocked = false; return null; }
+        }
+
         function handleParamChange() {
+            autosave();
             if (document.getElementById('autoCalcToggle').checked && rawRecords.length > 0) {
                 triggerOTSCalculation(false);
             }
         }
 
         function renderRawTable() {
+            autosave();
             const tbody = document.getElementById('rawTableBody');
             document.getElementById('recordCount').innerText = rawRecords.length;
 
@@ -940,7 +979,7 @@
 
             lines.forEach(line => {
                 if (!line.trim()) return;
-                const cols = line.split(/[\t,]|  +/).map(c => c.trim());
+                const cols = (line.includes('\t') ? line.split('\t') : line.split(/,(?=\s*(?:\d|-|$))|  +/)).map(c => c.trim());
 
                 if (cols.length >= 8) {
                     let dateStr = cols[1];
@@ -957,14 +996,21 @@
 
                     if (dateStr && dateStr.match(/(\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4})|(\d{1,2}-[A-Za-z]{3}-\d{4})/)) {
                         let offset = dateColIdx - 1;
-                        const dues = parseFloat(cols[4 + offset]) || 0;
-                        const waterChg = parseFloat(cols[5 + offset]) || 0;
-                        const adjAmt = parseFloat(cols[6 + offset]) || 0;
-                        const otherAdj = parseFloat(cols[7 + offset]) || 0;
-                        const surcharge = parseFloat(cols[8 + offset]) || 0;
-                        const fine = parseFloat(cols[9 + offset]) || 0;
-                        const paid = parseFloat(cols[10 + offset]) || 0;
-                        const balance = parseFloat(cols[cols.length - 1]) || 0;
+                        const num = v => {
+                            let t = String(v == null ? '' : v).replace(/[₹,\s]/g, '');
+                            const neg = /^\(.*\)$/.test(t) || /cr$/i.test(t);
+                            t = t.replace(/[()]/g, '').replace(/(cr|dr)$/i, '');
+                            const n = parseFloat(t);
+                            return isNaN(n) ? 0 : (neg ? -Math.abs(n) : n);
+                        };
+                        const dues = num(cols[4 + offset]);
+                        const waterChg = num(cols[5 + offset]);
+                        const adjAmt = num(cols[6 + offset]);
+                        const otherAdj = num(cols[7 + offset]);
+                        const surcharge = num(cols[8 + offset]);
+                        const fine = num(cols[9 + offset]);
+                        const paid = num(cols[10 + offset]);
+                        const balance = num(cols[cols.length - 1]);
 
                         parsed.push({
                             date: dateStr.replace(/\//g, '-').replace(/\./g, '-'),
@@ -1019,8 +1065,8 @@
 
             const fromDateStr = document.getElementById('fromDate').value;
             const toDateStr = document.getElementById('toDate').value;
-            const fromDate = fromDateStr ? new Date(fromDateStr) : new Date(1900, 0, 1);
-            const toDate = toDateStr ? new Date(toDateStr) : new Date(2100, 11, 31);
+            const fromDate = fromDateStr ? parseToDate(fromDateStr) : new Date(1900, 0, 1);
+            const toDate = toDateStr ? parseToDate(toDateStr) : new Date(2100, 11, 31);
             toDate.setHours(23, 59, 59, 999);
 
             const filteredRecords = rawRecords.filter(r => {
@@ -1047,10 +1093,21 @@
             const startDate = parseToDate(sortedRecords[0].date);
             const endDate = parseToDate(sortedRecords[sortedRecords.length - 1].date);
 
-            let startFYYear = startDate.getMonth() >= 3 ? startDate.getFullYear() : startDate.getFullYear() - 1;
-            let endFYYear = endDate.getMonth() >= 3 ? endDate.getFullYear() : endDate.getFullYear() - 1;
-            if (endFYYear < startFYYear) endFYYear = startFYYear;
+            // ---- Interest window (split / part years) ----
+            // Start: later of the From-Date month and the first billing record month.
+            // End  : To-Date month (balance keeps running after the last bill), never earlier than the last record.
+            const monthIdx = d => d.getFullYear() * 12 + d.getMonth();
+            const earliestDataIdx = Math.min(...rawRecords.map(r => monthIdx(parseToDate(r.date))));
+            let startIdx = fromDateStr ? Math.max(monthIdx(fromDate), earliestDataIdx) : monthIdx(startDate);
+            startIdx = Math.min(startIdx, monthIdx(startDate));
+            let endIdx = toDateStr ? monthIdx(toDate) : monthIdx(endDate);
+            endIdx = Math.max(endIdx, monthIdx(endDate));
 
+            const fyOfIdx = idx => { const y = Math.floor(idx / 12), mo = idx % 12; return mo >= 3 ? y : y - 1; };
+            const startFYYear = fyOfIdx(startIdx);
+            const endFYYear = fyOfIdx(endIdx);
+
+            // Only months inside the window are created, so a part FY has fewer than 12 months.
             const fyMap = {};
             for (let fy = startFYYear; fy <= endFYYear; fy++) {
                 const fyLabel = `${fy}-${(fy + 1).toString().slice(-2)}`;
@@ -1058,9 +1115,10 @@
                 for (let m = 0; m < 12; m++) {
                     const monthIndex = (m + 3) % 12;
                     const year = m < 9 ? fy : fy + 1;
-                    const monthDate = new Date(year, monthIndex, 1);
+                    const idx = year * 12 + monthIndex;
+                    if (idx < startIdx || idx > endIdx) continue;
                     fyMap[fyLabel].push({
-                        monthDate,
+                        monthDate: new Date(year, monthIndex, 1),
                         monthLabel: `${MONTH_SHORT_NAMES[monthIndex]}-${year}`,
                         ob: 0, demand: 0, surcharge: 0, adj: 0, receipt: 0, cb: 0, hasRawRecord: false
                     });
@@ -1119,11 +1177,13 @@
                     m.ob = runningOB;
                     m.cb = m.ob + m.demand + m.surcharge + m.adj - m.receipt;
                     runningOB = m.cb;
-                    if (m.hasRawRecord) {
-                        fyProgressiveTotal += Math.max(0, m.cb);
-                    }
+                    // Progressive total: month-end balance of EVERY month in the period
+                    // (months without a bill carry the previous balance forward).
+                    fyProgressiveTotal += Math.max(0, m.cb);
                 });
 
+                const fyMonths = fyMap[fyLabel].length;
+                // Interest = Progressive Total x Rate / (12 x 100)  -> 1 month's interest on each month-end balance
                 const fyInterestRaw = (fyProgressiveTotal * annualRate) / 1200;
                 const fyInterestNet = fyInterestRaw * (1 - interestWaiverPct / 100);
                 rawOTSInterestAllFY += fyInterestNet;
@@ -1131,12 +1191,14 @@
                 fySummaries.push({
                     fyLabel,
                     progressiveTotal: fyProgressiveTotal,
+                    months: fyMonths,
                     interest: fyInterestNet,
                     closingBalance: runningOB
                 });
             });
 
-            const currentBalanceEabacus = sortedRecords[sortedRecords.length - 1].total || runningOB;
+            const lastTotal = sortedRecords[sortedRecords.length - 1].total;
+            const currentBalanceEabacus = (lastTotal === undefined || lastTotal === null || isNaN(lastTotal)) ? runningOB : lastTotal;
             const currentFineTotal = filteredRecords.reduce((sum, r) => sum + (parseFloat(r.fine) || 0), 0);
             const otsBalance = Math.max(0, runningOB);
             const otsFine = rawOTSInterestAllFY;
@@ -1206,7 +1268,9 @@
             document.getElementById('compactPeriod').innerText = `${formattedFromDate} to ${formattedToDate}`;
             document.getElementById('compactPeriodInline').innerText = `${formattedFromDate} to ${formattedToDate}`;
 
+            stampToday();
             renderInstallmentSchedule(payableAmountOTS, installmentCount);
+            lastChartArgs = [currentFineTotal, otsFine, otsBalance, payableAmountOTS, fySummaries];
             renderCharts(currentFineTotal, otsFine, otsBalance, payableAmountOTS, fySummaries);
             renderFYSchedules();
 
@@ -1225,7 +1289,8 @@
             const compactTbody = document.getElementById('compactInstallmentBody');
             document.getElementById('installmentBadge').innerText = count === 1 ? 'Single Lump Sum' : `${count} Monthly EMIs`;
 
-            const perInstallment = totalPayable / count;
+            const totalPaise = Math.round(totalPayable * 100);
+            const basePaise = Math.floor(totalPaise / count);
             let rowsHtml = '';
             let letterRowsHtml = '';
             let mlLetterRowsHtml = '';
@@ -1233,6 +1298,7 @@
             const baseDate = new Date();
 
             for (let i = 1; i <= count; i++) {
+                const perInstallment = (i === count ? totalPaise - basePaise * (count - 1) : basePaise) / 100;
                 const due = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 15);
                 const dueStr = formatDateDDMMYYYY(due);
                 rowsHtml += `
@@ -1343,6 +1409,7 @@
                                 <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-calendar-days text-blue-600 mr-1.5"></i> Financial Year: ${fyLabel}</h3>
                             </div>
                             <div class="flex items-center gap-3 text-xs font-mono">
+                                <span class="bg-white px-2.5 py-1 rounded border border-slate-200 text-slate-600">${summary.months} mo${summary.months < 12 ? ' (part year)' : ''}</span>
                                 <span class="bg-white px-2.5 py-1 rounded border border-slate-200 text-slate-600">Prog. Sum: <strong>${formatCurrency(summary.progressiveTotal)}</strong></span>
                                 <span class="bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 text-emerald-800">OTS Fine: <strong>${formatCurrency(summary.interest)}</strong></span>
                             </div>
@@ -1377,7 +1444,7 @@
                                 </tbody>
                                 <tfoot class="bg-slate-50 font-semibold text-slate-800 border-t">
                                     <tr>
-                                        <td class="px-3 py-2 text-right" colspan="6">Calculated FY OTS Fine (${annualRate}% p.a.):</td>
+                                        <td class="px-3 py-2 text-right" colspan="6">Prog. Sum ${formatCurrency(summary.progressiveTotal)} × ${annualRate}% ÷ 1200 = FY OTS Fine:</td>
                                         <td class="px-3 py-2 text-right font-bold text-emerald-700 font-mono">${formatCurrency(summary.interest)}</td>
                                     </tr>
                                 </tfoot>
@@ -1443,160 +1510,6 @@
             }, 500);
         }
 
-        function downloadPDF(mode) {
-            const schedSec = document.getElementById('printScheduleSection');
-            const letterSec = document.getElementById('printLetterSection');
-            const mlLetterSec = document.getElementById('printLetterMalayalamSection');
-            const compactSec = document.getElementById('printCompactLetterSection');
-
-            schedSec.classList.add('hidden');
-            letterSec.classList.add('hidden');
-            mlLetterSec.classList.add('hidden');
-            compactSec.classList.add('hidden');
-
-            let element;
-            let filenamePrefix = "KWA_OTS_Report";
-
-            const cNo = (document.getElementById('consumerNo').value || 'Notice').replace(/[^a-zA-Z0-9]/g, '_');
-
-            if (mode === 'letter') {
-                letterSec.classList.remove('hidden');
-                element = letterSec;
-                filenamePrefix = `KWA_OTS_Notice_EN_${cNo}`;
-            } else if (mode === 'letter_ml') {
-                mlLetterSec.classList.remove('hidden');
-                element = mlLetterSec;
-                filenamePrefix = `KWA_OTS_Notice_ML_${cNo}`;
-            } else if (mode === 'compact') {
-                compactSec.classList.remove('hidden');
-                element = compactSec;
-                filenamePrefix = `KWA_OTS_Compact_Notice_${cNo}`;
-            } else {
-                schedSec.classList.remove('hidden');
-                toggleAllFYSchedules(true);
-                element = schedSec;
-                filenamePrefix = `KWA_OTS_Schedule_${cNo}`;
-            }
-
-            showToast("Generating PDF report...", "info");
-
-            const opt = {
-                margin:       [0.4, 0.4, 0.4, 0.4],
-                filename:     `${filenamePrefix}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                showToast("PDF report generated successfully!", "success");
-                if (mode !== 'schedule') {
-                    letterSec.classList.add('hidden');
-                    mlLetterSec.classList.add('hidden');
-                    compactSec.classList.add('hidden');
-                    schedSec.classList.remove('hidden');
-                }
-            }).catch(err => {
-                console.error(err);
-                showToast("Failed to generate PDF report.", "error");
-                letterSec.classList.add('hidden');
-                mlLetterSec.classList.add('hidden');
-                compactSec.classList.add('hidden');
-                schedSec.classList.remove('hidden');
-            });
-        }
-
-        function toggleSavedCasesDrawer() {
-            const drawer = document.getElementById('savedCasesDrawer');
-            drawer.classList.toggle('hidden');
-            if (!drawer.classList.contains('hidden')) updateSavedCasesUI();
-        }
-
-        function getSavedCases() {
-            try {
-                return JSON.parse(localStorage.getItem('ots_saved_cases_kwa') || '[]');
-            } catch {
-                return [];
-            }
-        }
-
-        function saveCurrentCase() {
-            if (rawRecords.length === 0) {
-                showToast("Load or import billing records before saving a case.", "error");
-                return;
-            }
-            const cases = getSavedCases();
-            const newCase = {
-                id: Date.now(),
-                savedAt: new Date().toLocaleString('en-IN'),
-                consumerName: document.getElementById('consumerName').value,
-                consumerNo: document.getElementById('consumerNo').value,
-                fromDate: document.getElementById('fromDate').value,
-                toDate: document.getElementById('toDate').value,
-                annualRate: document.getElementById('annualRate').value,
-                interestWaiverPct: document.getElementById('interestWaiverPct').value,
-                surchargeWaiverPct: document.getElementById('surchargeWaiverPct').value,
-                installmentCount: document.getElementById('installmentCount').value,
-                circularRef: document.getElementById('circularRef').value,
-                payableOTS: lastMetrics ? lastMetrics.payableAmountOTS : 0,
-                rawRecords: JSON.parse(JSON.stringify(rawRecords))
-            };
-            cases.unshift(newCase);
-            localStorage.setItem('ots_saved_cases_kwa', JSON.stringify(cases.slice(0, 25)));
-            updateSavedCasesUI();
-            showToast(`Saved case for ${newCase.consumerNo || 'Consumer'}`, "success");
-        }
-
-        function loadSavedCase(id) {
-            const found = getSavedCases().find(c => c.id === id);
-            if (!found) return;
-            document.getElementById('consumerName').value = found.consumerName || '';
-            document.getElementById('consumerNo').value = found.consumerNo || '';
-            document.getElementById('fromDate').value = found.fromDate;
-            document.getElementById('toDate').value = found.toDate;
-            document.getElementById('annualRate').value = found.annualRate;
-            document.getElementById('interestWaiverPct').value = found.interestWaiverPct || 0;
-            document.getElementById('surchargeWaiverPct').value = found.surchargeWaiverPct || 0;
-            document.getElementById('installmentCount').value = found.installmentCount || 1;
-            document.getElementById('circularRef').value = found.circularRef || '';
-            rawRecords = found.rawRecords;
-
-            renderRawTable();
-            document.getElementById('tableSection').classList.remove('hidden');
-            triggerOTSCalculation(false);
-            toggleSavedCasesDrawer();
-            showToast(`Loaded case ${found.consumerNo || ''}`, "info");
-        }
-
-        function deleteSavedCase(id) {
-            const updated = getSavedCases().filter(c => c.id !== id);
-            localStorage.setItem('ots_saved_cases_kwa', JSON.stringify(updated));
-            updateSavedCasesUI();
-        }
-
-        function updateSavedCasesUI() {
-            const cases = getSavedCases();
-            document.getElementById('savedCountBadge').innerText = cases.length;
-            const listEl = document.getElementById('savedCasesList');
-            if (cases.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-12 text-xs text-slate-400">No saved consumer cases yet. Click "Save Current Case" above to store a snapshot.</div>`;
-                return;
-            }
-            listEl.innerHTML = cases.map(c => `
-                <div class="p-3.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white shadow-2xs transition flex justify-between items-center gap-2">
-                    <div>
-                        <div class="font-bold text-xs text-slate-800">${c.consumerName || 'Unnamed Consumer'}</div>
-                        <div class="text-[11px] font-mono text-blue-600">${c.consumerNo || 'No ID'} • Payable: ${formatCurrency(c.payableOTS)}</div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">${c.savedAt} (${c.rawRecords.length} rows)</div>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="loadSavedCase(${c.id})" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold">Load</button>
-                        <button onclick="deleteSavedCase(${c.id})" class="p-1.5 text-rose-400 hover:text-rose-600"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function formatCurrency(val, includeSymbol = true) {
             const numStr = (val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             return includeSymbol ? '₹' + numStr : numStr;
@@ -1604,6 +1517,97 @@
         function formatNumber(val) {
             return (val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
+    </script>
+
+    <script>
+    /* ===== Guided wizard layer (UI only - calculation code above is unchanged) ===== */
+    const WZ = [
+        { t: 'Case Details', h: 'Enter the consumer and the period to settle. Dates and rate are required; name and number are printed on the notices.', n: 'Next: Add Ledger Data' },
+        { t: 'Add Ledger Data', h: 'Copy the DCB ledger rows from eAbacus and paste them below, then press Validate & Import. You can edit any row afterwards. No data? Use the Demo button on top.', n: 'Next: Settlement Options' },
+        { t: 'Settlement Options', h: 'Optional. Set waivers, number of installments and the circular reference. Leave the defaults if the scheme gives no extra waiver.', n: 'Calculate OTS' },
+        { t: 'Your Result', h: 'Review the settlement amount. Use Print Reports here for the notices, or save this case for later.', n: 'See Detailed Schedules' },
+        { t: 'Detailed Schedules', h: 'Year-wise progressive schedule and notice previews. Print from the previous step, or start a new case below.', n: 'Start New Case' }
+    ];
+    const $w = id => document.getElementById(id);
+    let wzStep = 1, wzMax = 1;
+
+    function wzGo(n) {
+        wzStep = n; wzMax = Math.max(wzMax, n);
+        document.querySelectorAll('[data-steps]').forEach(e => e.classList.toggle('wz-off', !e.dataset.steps.split(' ').includes(String(n))));
+        $w('wzSteps').innerHTML = WZ.map((x, i) => {
+            const k = i + 1, cls = k === n ? 'wz-cur' : (k < n ? 'wz-done' : '');
+            return `<li class="flex-1 flex flex-col items-center ${cls} ${k <= wzMax ? 'cursor-pointer' : ''}" ${k <= wzMax ? `onclick="wzGo(${k})"` : ''}><div class="wz-dot">${k < n ? '<i class="fa-solid fa-check"></i>' : k}</div><div class="wz-lbl">${x.t}</div></li>`;
+        }).join('');
+        $w('wzBar').style.width = (n / WZ.length * 100) + '%';
+        $w('wzTitle').innerText = `Step ${n} of ${WZ.length}: ${WZ[n - 1].t}`;
+        $w('wzHelp').innerText = WZ[n - 1].h;
+        $w('wzNext').innerHTML = WZ[n - 1].n + (n < 5 ? ' <i class="fa-solid fa-arrow-right ml-1.5"></i>' : ' <i class="fa-solid fa-rotate-right ml-1.5"></i>');
+        $w('wzBack').style.visibility = n === 1 ? 'hidden' : 'visible';
+        $w('wzCount').innerText = rawRecords.length ? `${rawRecords.length} billing entries loaded` : '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (n === 4 && lastChartArgs) setTimeout(() => renderCharts(...lastChartArgs), 60);
+        autosave();
+    }
+    function wzBack() { if (wzStep > 1) wzGo(wzStep - 1); }
+    function wzWarn(msg, id) {
+        showToast(msg, 'error');
+        const el = id && $w(id);
+        if (el) { el.classList.add('wz-bad'); el.focus(); setTimeout(() => el.classList.remove('wz-bad'), 2500); }
+    }
+    function wzNext() {
+        if (wzStep === 1) {
+            const f = $w('fromDate').value, t = $w('toDate').value, r = $w('annualRate').value;
+            if (!f) return wzWarn('Please choose the From date.', 'fromDate');
+            if (!t) return wzWarn('Please choose the To date.', 'toDate');
+            if (f > t) return wzWarn('From date must be earlier than To date.', 'fromDate');
+            if (r === '' || parseFloat(r) < 0) return wzWarn('Please enter the OTS interest rate.', 'annualRate');
+            return wzGo(2);
+        }
+        if (wzStep === 2) {
+            if (!rawRecords.length && $w('pasteInput').value.trim()) parsePastedData();
+            if (!rawRecords.length) return wzWarn('Paste the eAbacus rows and press Validate & Import (or use Demo).', 'pasteInput');
+            return wzGo(3);
+        }
+        if (wzStep === 3) {
+            const sc = $w('summaryCard'); sc.classList.add('hidden');
+            triggerOTSCalculation(false);
+            if (!sc.classList.contains('hidden')) wzGo(4);
+            return;
+        }
+        if (wzStep === 4) return wzGo(5);
+        if (confirm('Start a new case? The current data will be cleared.')) resetApp();
+    }
+
+    // Auto-guidance hooks: wrap existing actions, never alter them
+    const _parse = parsePastedData;
+    parsePastedData = function () {
+        _parse();
+        if (rawRecords.length && wzStep === 2) {
+            $w('wzCount').innerText = `${rawRecords.length} billing entries loaded`;
+            const b = $w('wzNext'); b.classList.remove('wz-pulse'); void b.offsetWidth; b.classList.add('wz-pulse');
+            setTimeout(() => $w('tableSection').scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+    };
+    const _demo = loadSampleData;
+    loadSampleData = function () { _demo(); wzMax = 5; wzGo(4); };
+    const _reset = resetApp;
+    resetApp = function () { _reset(); wzMax = 1; wzGo(1); };
+
+    // Move the two calculation switches into the optional "Advanced" box of step 3
+    $w('wzAdvBody').appendChild($w('wzToggles'));
+    (function startup() {
+        const saved = restoreAutosave();
+        if (saved && rawRecords.length) {
+            renderRawTable();
+            $w('tableSection').classList.remove('hidden');
+            triggerOTSCalculation(false);
+            wzMax = 5;
+            wzGo(Math.min(Math.max(parseInt(saved.step) || 1, 1), 5));
+            showToast('Restored your previous work.', 'info');
+        } else {
+            wzGo(1);
+        }
+    })();
     </script>
 </body>
 </html>
