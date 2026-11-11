@@ -58,12 +58,65 @@
         @keyframes wzPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(37,99,235,.55);} 50%{ box-shadow:0 0 0 10px rgba(37,99,235,0);} }
         .wz-pulse { animation: wzPulse 1.2s ease-in-out 4; }
         .wz-bad { border-color:#e11d48 !important; box-shadow:0 0 0 3px #ffe4e6 !important; }
+        /* ===== Added: payable highlight, compact year-wise report, cases dialog ===== */
+        .pay-hl { background:transparent; border:2px solid #1e3a8a; border-radius:.4rem; padding:.35rem .7rem; color:#0f172a; font-weight:800; }
+        .sig-row { display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:space-between; align-items:flex-end; gap:1.5rem; text-align:center; }
+        .sig-row > div { flex:1 1 0; min-width:0; }
+        /* The Schedule signature row is print-only: hidden on screen, a horizontal flex row when printing
+           (the generic .print-only rule would otherwise force display:block and stack the three boxes). */
+        .print-only.sig-row { display:none; }
+        @media print { .print-only.sig-row { display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important; } }
+        .sig-val { font-weight:700; color:#0f172a; margin-top:.15rem; }
+        .rpt-remarks { font-style:italic; border:1px solid #334155; border-radius:.3rem; padding:.4rem .6rem; margin-top:.75rem; font-size:.75rem; line-height:1.4; color:#0f172a; white-space:normal; break-inside:avoid; page-break-inside:avoid; }
+        .yw-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px 8px; margin-top:6px; }
+        .yw-card { break-inside:avoid; page-break-inside:avoid; }
+        .yw-head { display:flex; justify-content:space-between; align-items:center; gap:4px; background:#e2e8f0; border:1px solid #94a3b8; border-bottom:0; padding:1px 3px; font-size:7pt; font-weight:700; color:#0f172a; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .yw-table { table-layout:fixed; width:100%; border-collapse:collapse !important; font-size:6.8pt !important; line-height:1.15; color:#0f172a; }
+        .yw-table th, .yw-table td { padding:.5px 2px !important; border:1px solid #94a3b8 !important; white-space:nowrap; }
+        .yw-table th { background:#f1f5f9; font-weight:700; text-align:right; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .yw-table th:first-child, .yw-table td:first-child { text-align:left; }
+        .yw-table td { text-align:right; }
+        .yw-table tr.yw-ev td { background:transparent; font-weight:800; }
+        .yw-table tfoot td { font-weight:700; background:#f8fafc; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .yw-sum { display:grid; grid-template-columns:repeat(5,1fr); gap:2px 8px; font-size:8pt; border:1px solid #cbd5e1; padding:3px 6px; margin:4px 0; }
     </style>
 </head>
 <body class="p-3 md:p-6 min-h-screen pb-28 selection:bg-blue-600 selection:text-white">
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
+
+    <!-- Saved Cases dialog (localStorage, JSON) -->
+    <div id="casesModal" class="fixed inset-0 hidden no-print" style="z-index:45" role="dialog" aria-modal="true" aria-labelledby="casesTitle">
+        <div class="absolute inset-0 bg-slate-900/60" onclick="closeCasesModal()"></div>
+        <div class="relative mx-auto mt-6 sm:mt-14 w-[94%] max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col" style="max-height:85vh">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <h2 id="casesTitle" class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-folder-open text-sky-600"></i> Saved Cases</h2>
+                <button onclick="closeCasesModal()" class="text-slate-500 hover:text-slate-800 px-2 py-1" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="text-xs text-slate-600">
+                    <div class="font-semibold text-slate-700">Case on screen</div>
+                    <div id="casesCurrentInfo" class="font-mono"></div>
+                </div>
+                <button onclick="saveCurrentCase()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Save / Update this case
+                </button>
+            </div>
+            <div class="px-4 pt-3">
+                <input id="casesSearch" type="text" oninput="renderCasesList()" placeholder="Search by Consumer No. or name" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div id="casesList" class="mt-2 overflow-y-auto divide-y divide-slate-100 border-t border-slate-100" style="min-height:6rem"></div>
+            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 rounded-b-2xl flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[11px] text-slate-500">Saved in this browser on this computer. Use Export to keep a backup file.</span>
+                <div class="flex gap-2">
+                    <button onclick="exportCases()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold"><i class="fa-solid fa-file-export mr-1"></i>Export all</button>
+                    <button onclick="document.getElementById('casesImportFile').click()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold"><i class="fa-solid fa-file-import mr-1"></i>Import</button>
+                    <input id="casesImportFile" type="file" accept=".json,application/json" class="hidden" onchange="importCasesFile(this)">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-5xl mx-auto space-y-4 md:space-y-6">
         <!-- MOBILE-OPTIMIZED APP HEADER NAVIGATION -->
@@ -78,6 +131,12 @@
                 <div class="flex items-center gap-1.5 ml-auto">
                     <button onclick="loadSampleData()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo</span>
+                    </button>
+                    <button onclick="saveCurrentCase()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs" title="Save this case (by Consumer No.) on this computer">
+                        <i class="fa-solid fa-floppy-disk"></i> <span>Save</span>
+                    </button>
+                    <button onclick="openCasesModal()" class="px-3 py-1.5 bg-sky-700 hover:bg-sky-600 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-xs" title="Load, export or delete saved cases">
+                        <i class="fa-solid fa-folder-open"></i> <span>Cases</span>
                     </button>
                     <button onclick="resetApp()" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 rounded-lg text-xs font-medium transition border border-rose-800/60" title="Reset">
                         <i class="fa-solid fa-rotate-left"></i>
@@ -302,6 +361,9 @@
                                 <button onclick="printReport('schedule')" class="px-2.5 py-1.5 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition" title="Print Detailed FY Schedule">
                                     Schedule
                                 </button>
+                                <button onclick="printReport('yearwise')" class="px-2.5 py-1.5 hover:bg-slate-700 text-violet-300 rounded-lg text-xs font-semibold transition" title="Print Schedule (Compact) - 2 financial years side by side">
+                                    Schedule(Compact)
+                                </button>
                                 <button onclick="printReport('letter')" class="px-2.5 py-1.5 hover:bg-slate-700 text-blue-300 rounded-lg text-xs font-semibold transition" title="Print Full English Notice">
                                     Notice (EN)
                                 </button>
@@ -411,12 +473,46 @@
             </div>
         </div>
 
+        <!-- REPORT DETAILS: office details & signatories (printed on reports) -->
+        <div id="reportDetailsCard" data-steps="3 4" class="bg-white rounded-2xl shadow-xs border border-slate-200/90 overflow-hidden no-print">
+            <div class="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-200/80">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-building-columns text-blue-600"></i> Report Details &mdash; Office &amp; Signatories
+                </h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">Printed on the reports. Optional. Remembered on this computer and stored with each saved case.</p>
+            </div>
+            <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Office / Division Name</label>
+                    <input type="text" id="rptOfficeName" oninput="onReportDetailsInput()" placeholder="e.g. PH Division / Sub Division office" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Phone / Email</label>
+                    <input type="text" id="rptOfficeContact" oninput="onReportDetailsInput()" placeholder="e.g. Ph: 0469-0000000, email" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Office Address</label>
+                    <textarea id="rptOfficeAddress" rows="2" oninput="onReportDetailsInput()" placeholder="Office address (printed below the office name)" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Remarks</label>
+                    <textarea id="rptRemarks" rows="2" oninput="onReportDetailsInput()" placeholder="Optional remarks (printed in italics in the schedules and notices; saved with the case)" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none italic"></textarea>
+                </div>
+                <div class="sm:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="rptPreparedBy" value="Head Clerk" aria-label="Signatory 1" oninput="onReportDetailsInput()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="rptVerifiedBy" value="Assistant Engineer" aria-label="Signatory 2" oninput="onReportDetailsInput()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="rptApprovedBy" value="Asst Executive Engineer" aria-label="Signatory 3" oninput="onReportDetailsInput()" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+        </div>
+
         <!-- SECTION 4: Detailed FY Schedules & Printable Outputs -->
         <div id="otsReportCard" data-steps="5" class="hidden bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-6 card">
 
             <!-- REPORT 1: Standard Calculation Schedule -->
             <div id="printScheduleSection">
                 <div class="print-only mb-6 border-b pb-4">
+                    <div class="rpt-office hidden text-center text-xs text-slate-700 mb-3 pb-2 border-b border-slate-300"></div>
                     <div class="flex justify-between items-start">
                         <div>
                             <h1 class="text-xl font-bold uppercase tracking-wider text-slate-900" id="printConsumerHeader"></h1>
@@ -437,7 +533,7 @@
                             <div><strong>OTS Principal Balance:</strong> <span id="pOTSBalance"></span></div>
                             <div><strong>OTS Fine:</strong> <span id="pOTSFine"></span></div>
                             <div><strong>Total OTS Benefit:</strong> <span id="pOTSBenefit" class="font-bold text-emerald-700"></span></div>
-                            <div><strong>Payable Amount as per OTS:</strong> <span id="pPayableOTS" class="font-bold text-blue-900"></span></div>
+                            <div class="col-span-3 pay-hl flex justify-between items-center text-sm"><strong class="uppercase tracking-wide">Payable Amount as per OTS</strong> <span class="font-mono text-base">&#8377; <span id="pPayableOTS"></span></span></div>
                         </div>
                     </div>
                 </div>
@@ -467,19 +563,28 @@
                 <!-- FY Schedules Container -->
                 <div id="fySchedulesContainer" class="space-y-3"></div>
 
+                <!-- Remarks (after year-wise tables) -->
+                <div class="rpt-remarks hidden"></div>
+
+                <!-- Highlighted payable amount (screen + print) -->
+                <div class="pay-hl mt-4 flex flex-wrap justify-between items-center gap-2 text-sm sm:text-base">
+                    <span class="uppercase tracking-wide">Payable Amount as per OTS</span>
+                    <span class="font-mono text-base sm:text-xl">&#8377; <span class="pay-copy"></span></span>
+                </div>
+
                 <!-- Signature Block for Print -->
-                <div class="print-only mt-16 pt-8 border-t border-slate-300 grid grid-cols-3 gap-8 text-center text-xs">
+                <div class="print-only mt-16 pt-8 border-t border-slate-300 sig-row text-xs">
                     <div>
                         <div class="border-b border-slate-400 mb-2 pb-12"></div>
-                        <p class="font-semibold text-slate-800">Prepared By</p>
+                        <p class="sig-val" data-sig="preparedBy"></p>
                     </div>
                     <div>
                         <div class="border-b border-slate-400 mb-2 pb-12"></div>
-                        <p class="font-semibold text-slate-800">Verified By</p>
+                        <p class="sig-val" data-sig="verifiedBy"></p>
                     </div>
                     <div>
                         <div class="border-b border-slate-400 mb-2 pb-12"></div>
-                        <p class="font-semibold text-slate-800">Approved By</p>
+                        <p class="sig-val" data-sig="approvedBy"></p>
                     </div>
                 </div>
             </div>
@@ -489,6 +594,7 @@
                 <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
                     <div class="text-center border-b-2 border-slate-800 pb-3">
                         <h1 class="text-base sm:text-lg font-extrabold uppercase tracking-wide">Kerala Water Authority</h1>
+                        <div class="rpt-office hidden text-xs text-slate-700 leading-snug mt-0.5"></div>
                         <p class="text-xs text-slate-700 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
                         <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="letterCircularRef" class="font-mono font-semibold"></span></p>
                     </div>
@@ -546,6 +652,8 @@
                         </tbody>
                     </table>
 
+                    <div class="rpt-remarks hidden"></div>
+
                     <div>
                         <h3 class="text-xs font-bold uppercase mb-2">Installment plan:</h3>
                         <table class="w-full text-xs border border-slate-300">
@@ -580,6 +688,7 @@
                 <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
                     <div class="text-center border-b-2 border-slate-800 pb-3">
                         <h1 class="text-base sm:text-lg font-extrabold tracking-wide">കേരള വാട്ടർ അതോറിറ്റി</h1>
+                        <div class="rpt-office hidden text-xs text-slate-700 leading-snug mt-0.5"></div>
                         <p class="text-xs text-slate-700 font-bold mt-1">ഒറ്റത്തവണ തീർപ്പാക്കൽ പദ്ധതി (OTS) അനുമതിയും ഡിമാൻഡ് നോട്ടീസും</p>
                         <p class="text-xs text-slate-600 mt-1">റഫറൻസ് സർക്കുലർ: <span id="mlLetterCircularRef" class="font-mono font-semibold"></span></p>
                     </div>
@@ -637,6 +746,8 @@
                         </tbody>
                     </table>
 
+                    <div class="rpt-remarks hidden" data-label="കുറിപ്പ്"></div>
+
                     <div>
                         <h3 class="text-xs font-bold mb-2">ഗഡുക്കളായി അടയ്ക്കാനുള്ള പ്ലാൻ (Installment plan):</h3>
                         <table class="w-full text-xs border border-slate-300">
@@ -671,6 +782,7 @@
                 <div class="max-w-3xl mx-auto p-4 text-slate-900 space-y-4 bg-white">
                     <div class="text-center border-b-2 border-slate-800 pb-3">
                         <h1 class="text-base sm:text-lg font-extrabold uppercase tracking-wide">KERALA WATER AUTHORITY</h1>
+                        <div class="rpt-office hidden text-xs text-slate-700 leading-snug mt-0.5"></div>
                         <p class="text-xs text-slate-800 font-bold mt-0.5">ONE-TIME SETTLEMENT (OTS) SANCTION & DEMAND NOTICE</p>
                         <p class="text-xs text-slate-600 mt-1">Reference Circular: <span id="compactCircularRef" class="font-mono font-semibold">-</span></p>
                     </div>
@@ -718,6 +830,8 @@
                     </table>
 
                     <!-- Installment Plan Section -->
+                    <div class="rpt-remarks hidden"></div>
+
                     <div class="pt-1">
                         <h3 class="text-xs font-bold uppercase mb-1">INSTALLMENT PLAN:</h3>
                         <table class="w-full text-xs border border-slate-300">
@@ -744,6 +858,40 @@
                             <p class="mt-6 border-t border-slate-400 inline-block pt-1 w-44 text-center">Authorized Signatory</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- REPORT 5: Compact Year-wise Schedule (two financial years per row) -->
+            <div id="printYearwiseSection" class="hidden">
+                <div class="rpt-office hidden text-center text-xs text-slate-700 mb-2 pb-1 border-b border-slate-300"></div>
+                <div class="flex justify-between items-start text-xs">
+                    <div>
+                        <h1 class="text-sm font-bold uppercase tracking-wider text-slate-900" id="ywConsumer"></h1>
+                        <p class="mt-0.5">Consumer No: <span id="ywConsumerNo" class="font-mono font-bold"></span> | Period: <span id="ywPeriod"></span></p>
+                        <p class="font-semibold text-blue-900 mt-0.5">Schedule (Compact) - OTS Calculation Statement (Ref: <span id="ywRef"></span>)</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold">Date: <span id="ywDate"></span></p>
+                        <p class="text-slate-600">OTS Rate: <span id="ywRate"></span>% p.a.</p>
+                    </div>
+                </div>
+                <div class="yw-sum">
+                    <div><strong>Current Balance:</strong> <span id="ywCurBal"></span></div>
+                    <div><strong>Current Fine:</strong> <span id="ywCurFine"></span></div>
+                    <div><strong>OTS Principal:</strong> <span id="ywOtsBal"></span></div>
+                    <div><strong>OTS Fine:</strong> <span id="ywOtsFine"></span></div>
+                    <div><strong>OTS Benefit:</strong> <span id="ywBenefit"></span></div>
+                </div>
+                <div class="pay-hl flex justify-between items-center text-sm">
+                    <span class="uppercase tracking-wide">Payable Amount as per OTS</span>
+                    <span class="font-mono text-base">&#8377; <span class="pay-copy"></span></span>
+                </div>
+                <div id="ywGrid" class="yw-grid"></div>
+                <div class="rpt-remarks hidden"></div>
+                <div class="mt-6 pt-4 border-t border-slate-300 sig-row text-xs" style="break-inside:avoid;page-break-inside:avoid">
+                    <div><div class="border-b border-slate-400 mb-1" style="height:34px"></div><p class="sig-val" data-sig="preparedBy"></p></div>
+                    <div><div class="border-b border-slate-400 mb-1" style="height:34px"></div><p class="sig-val" data-sig="verifiedBy"></p></div>
+                    <div><div class="border-b border-slate-400 mb-1" style="height:34px"></div><p class="sig-val" data-sig="approvedBy"></p></div>
                 </div>
             </div>
 
@@ -1552,7 +1700,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 font-mono">
                                     ${months.length > 0 ? months.map(m => `
-                                        <tr class="${m.hasRawRecord ? 'bg-amber-50/40 font-medium' : 'hover:bg-slate-50'}">
+                                        <tr class="${m.hasRawRecord ? 'font-extrabold' : 'hover:bg-slate-50'}">
                                             <td class="px-3 py-1.5 text-slate-700">
                                                 ${m.monthLabel}${m.hasRawRecord ? '<span class="ml-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 inline-block no-print" title="Active Billing Event"></span>' : ''}
                                             </td>
@@ -1731,6 +1879,326 @@
         } else {
             wzGo(1);
         }
+    })();
+    </script>
+
+    <script>
+    /* ===== Added features: saved cases (JSON/localStorage), report details, compact year-wise report =====
+       Existing calculation, ledger and wizard code above is unchanged. */
+    (function () {
+        'use strict';
+        const $ = id => document.getElementById(id);
+        const CASES_KEY = 'ots_cases_kwa_v1';
+        const REPORT_KEY = 'ots_report_kwa_v1';
+        const REPORT_IDS = {
+            officeName: 'rptOfficeName', officeAddress: 'rptOfficeAddress', officeContact: 'rptOfficeContact',
+            preparedBy: 'rptPreparedBy', verifiedBy: 'rptVerifiedBy', approvedBy: 'rptApprovedBy',
+            remarks: 'rptRemarks'
+        };
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const pad = n => String(n).padStart(2, '0');
+        const stamp = iso => {
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return '';
+            return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+        const caseKey = no => String(no || '').trim().replace(/\s+/g, ' ').toUpperCase();
+
+        /* ---------- Report details (office + signatories) ---------- */
+        function getReportDetails() {
+            const o = {};
+            Object.keys(REPORT_IDS).forEach(k => { const el = $(REPORT_IDS[k]); o[k] = el ? el.value.trim() : ''; });
+            return o;
+        }
+        function setReportDetails(o) {
+            if (!o) return;
+            Object.keys(REPORT_IDS).forEach(k => {
+                const el = $(REPORT_IDS[k]);
+                // Remarks are per case: an empty saved value must clear the box. Other fields keep defaults when empty.
+                if (k === 'remarks') { if (el) el.value = typeof o[k] === 'string' ? o[k] : ''; return; }
+                if (el && typeof o[k] === 'string' && o[k].trim()) el.value = o[k];
+            });
+        }
+        function applyReportDetails() {
+            const d = getReportDetails();
+            const lines = [];
+            if (d.officeName) lines.push(`<div class="font-bold text-sm">${esc(d.officeName)}</div>`);
+            if (d.officeAddress) lines.push(`<div>${esc(d.officeAddress).replace(/\n/g, '<br>')}</div>`);
+            if (d.officeContact) lines.push(`<div>${esc(d.officeContact)}</div>`);
+            const html = lines.join('');
+            document.querySelectorAll('.rpt-office').forEach(el => { el.innerHTML = html; el.classList.toggle('hidden', !html); });
+            document.querySelectorAll('[data-sig]').forEach(el => { el.textContent = d[el.dataset.sig] || ''; });
+            const rem = d.remarks ? esc(d.remarks).replace(/\r?\n/g, '<br>') : '';
+            document.querySelectorAll('.rpt-remarks').forEach(el => {
+                el.innerHTML = rem ? `<strong>${esc(el.dataset.label || 'Remarks')}:</strong> ${rem}` : '';
+                el.classList.toggle('hidden', !rem);
+            });
+        }
+        window.onReportDetailsInput = function () {
+            try { localStorage.setItem(REPORT_KEY, JSON.stringify(getReportDetails())); } catch (e) {}
+            applyReportDetails();
+        };
+
+        /* ---------- Highlighted payable amount (mirrors the existing calculated value) ---------- */
+        function syncPayable() {
+            const s = $('pPayableOTS');
+            const t = s ? s.textContent : '';
+            document.querySelectorAll('.pay-copy').forEach(e => { e.textContent = t; });
+        }
+        (function watchPayable() {
+            const s = $('pPayableOTS');
+            if (s) new MutationObserver(syncPayable).observe(s, { childList: true, characterData: true, subtree: true });
+        })();
+
+        /* ---------- Saved cases (localStorage, JSON) ---------- */
+        function readStore() {
+            try {
+                const d = JSON.parse(localStorage.getItem(CASES_KEY) || 'null');
+                if (d && typeof d === 'object' && d.cases && typeof d.cases === 'object') return d;
+            } catch (e) {}
+            return { version: 1, cases: {} };
+        }
+        function writeStore(store) {
+            try { localStorage.setItem(CASES_KEY, JSON.stringify(store)); return true; }
+            catch (e) { showToast('Could not save: browser storage is full or blocked.', 'error'); return false; }
+        }
+        const normRec = r => Object.assign({}, r, {
+            date: String(r.date || ''), ob: +r.ob || 0, demand: +r.demand || 0, surcharge: +r.surcharge || 0,
+            fine: +r.fine || 0, adj: +r.adj || 0, receipt: +r.receipt || 0, total: +r.total || 0
+        });
+
+        window.saveCurrentCase = function () {
+            const no = $('consumerNo').value.trim();
+            if (!no) {
+                showToast('Enter the Consumer No. first. Cases are saved by consumer number.', 'error');
+                if (typeof wzGo === 'function') wzGo(1);
+                setTimeout(() => $('consumerNo').focus(), 50);
+                return;
+            }
+            const key = caseKey(no);
+            const store = readStore();
+            if (store.cases[key] && !confirm(`A saved case for "${no}" already exists (saved ${stamp(store.cases[key].savedAt)}).\n\nReplace it with the case on screen?`)) return;
+            const fields = {};
+            AUTOSAVE_FIELDS.forEach(id => { fields[id] = $(id).value; });
+            fields.reconcile = $('reconcileLedgerToggle').checked;
+            fields.autoCalc = $('autoCalcToggle').checked;
+            fields.ledgerAccepted = ledgerAccepted;
+            store.cases[key] = {
+                consumerNo: no,
+                consumerName: $('consumerName').value.trim(),
+                savedAt: new Date().toISOString(),
+                fields,
+                rawRecords: JSON.parse(JSON.stringify(rawRecords)),
+                report: getReportDetails()
+            };
+            if (writeStore(store)) {
+                showToast(`Case ${no} saved (${rawRecords.length} ledger rows).`, 'success');
+                if (!$('casesModal').classList.contains('hidden')) window.openCasesModal();
+            }
+        };
+
+        window.loadCase = function (key) {
+            const c = readStore().cases[key];
+            if (!c) { showToast('Saved case not found.', 'error'); return; }
+            if (rawRecords.length && !confirm(`Load case ${c.consumerNo}?\n\nThe case currently on screen will be replaced. Save it first if you need it.`)) return;
+            autosaveLocked = true;
+            try {
+                const f = c.fields || {};
+                AUTOSAVE_FIELDS.forEach(id => { const el = $(id); if (el && f[id] !== undefined) el.value = f[id]; });
+                if (typeof f.reconcile === 'boolean') $('reconcileLedgerToggle').checked = f.reconcile;
+                if (typeof f.autoCalc === 'boolean') $('autoCalcToggle').checked = f.autoCalc;
+                ledgerAccepted = f.ledgerAccepted === true;
+                rawRecords = Array.isArray(c.rawRecords) ? c.rawRecords.map(normRec) : [];
+                setReportDetails(c.report);
+                window.onReportDetailsInput();
+            } finally { autosaveLocked = false; }
+            $('pasteInput').value = '';
+            $('summaryCard').classList.add('hidden');
+            $('otsReportCard').classList.add('hidden');
+            if (rawRecords.length) {
+                renderRawTable();
+                $('tableSection').classList.remove('hidden');
+                triggerOTSCalculation(false);
+                wzMax = 5;
+                wzGo($('summaryCard').classList.contains('hidden') ? 3 : 4);
+            } else {
+                $('tableSection').classList.add('hidden');
+                wzGo(1);
+            }
+            window.closeCasesModal();
+            showToast(`Case ${c.consumerNo} loaded.`, 'success');
+        };
+
+        window.deleteCase = function (key) {
+            const store = readStore();
+            const c = store.cases[key];
+            if (!c || !confirm(`Delete the saved case for "${c.consumerNo}"? This cannot be undone.`)) return;
+            delete store.cases[key];
+            if (writeStore(store)) { renderCasesList(); showToast('Saved case deleted.', 'info'); }
+        };
+
+        window.exportCases = function (key) {
+            const store = readStore();
+            const out = {};
+            if (key) { if (store.cases[key]) out[key] = store.cases[key]; } else { Object.assign(out, store.cases); }
+            if (!Object.keys(out).length) { showToast('No saved cases to export.', 'error'); return; }
+            const payload = { app: 'KWA-OTS', version: 1, exportedAt: new Date().toISOString(), cases: out };
+            const d = new Date();
+            const name = key
+                ? `OTS_${key.replace(/[^A-Za-z0-9._-]+/g, '-')}.json`
+                : `OTS_Cases_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+            const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+            const a = document.createElement('a');
+            a.href = url; a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            showToast(`Exported ${Object.keys(out).length} case(s).`, 'success');
+        };
+
+        window.importCasesFile = function (input) {
+            const file = input.files && input.files[0];
+            input.value = '';
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onerror = () => showToast('Could not read the file.', 'error');
+            reader.onload = () => {
+                let data;
+                try { data = JSON.parse(reader.result); } catch (e) { showToast('Not a valid JSON file.', 'error'); return; }
+                let incoming = {};
+                if (data && data.cases && typeof data.cases === 'object') incoming = data.cases;
+                else if (data && data.consumerNo && data.fields) incoming[caseKey(data.consumerNo)] = data;
+                const valid = Object.keys(incoming).filter(k => {
+                    const c = incoming[k];
+                    return c && typeof c.consumerNo === 'string' && c.consumerNo.trim() && c.fields && typeof c.fields === 'object' && Array.isArray(c.rawRecords);
+                });
+                if (!valid.length) { showToast('No valid OTS cases found in this file.', 'error'); return; }
+                const store = readStore();
+                const clash = valid.filter(k => store.cases[caseKey(incoming[k].consumerNo)]);
+                const replace = clash.length ? confirm(`${clash.length} case(s) in the file already exist here.\n\nOK = replace them with the file's version.\nCancel = import only the new cases.`) : true;
+                let n = 0;
+                valid.forEach(k => {
+                    const c = incoming[k];
+                    const nk = caseKey(c.consumerNo);
+                    if (store.cases[nk] && !replace) return;
+                    c.rawRecords = c.rawRecords.map(normRec);
+                    c.savedAt = c.savedAt || new Date().toISOString();
+                    store.cases[nk] = c;
+                    n++;
+                });
+                if (writeStore(store)) { renderCasesList(); showToast(`Imported ${n} case(s).`, 'success'); }
+            };
+            reader.readAsText(file);
+        };
+
+        window.renderCasesList = function () {
+            const q = ($('casesSearch').value || '').trim().toLowerCase();
+            const cases = readStore().cases;
+            const keys = Object.keys(cases)
+                .filter(k => !q || k.toLowerCase().includes(q) || (cases[k].consumerName || '').toLowerCase().includes(q))
+                .sort((a, b) => String(cases[b].savedAt).localeCompare(String(cases[a].savedAt)));
+            const box = $('casesList');
+            if (!keys.length) {
+                box.innerHTML = `<div class="px-4 py-8 text-center text-xs text-slate-400">${Object.keys(cases).length ? 'No case matches your search.' : 'No saved cases yet. Enter a Consumer No. and press Save.'}</div>`;
+                return;
+            }
+            box.innerHTML = keys.map(k => {
+                const c = cases[k];
+                const arg = `decodeURIComponent('${encodeURIComponent(k)}')`;
+                return `<div class="px-4 py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50">
+                    <div class="min-w-0">
+                        <div class="font-mono font-bold text-sm text-slate-900 truncate">${esc(c.consumerNo)}</div>
+                        <div class="text-xs text-slate-600 truncate">${esc(c.consumerName || '-')}</div>
+                        <div class="text-[11px] text-slate-400">${(c.rawRecords || []).length} ledger rows &middot; saved ${esc(stamp(c.savedAt))}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="loadCase(${arg})" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold">Load</button>
+                        <button onclick="exportCases(${arg})" class="px-2 py-1.5 text-slate-500 hover:text-slate-800" title="Export this case"><i class="fa-solid fa-download"></i></button>
+                        <button onclick="deleteCase(${arg})" class="px-2 py-1.5 text-rose-500 hover:text-rose-700" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        window.openCasesModal = function () {
+            const no = $('consumerNo').value.trim();
+            $('casesCurrentInfo').textContent = no ? `${no} - ${rawRecords.length} ledger rows` : 'No Consumer No. entered yet';
+            window.renderCasesList();
+            $('casesModal').classList.remove('hidden');
+            setTimeout(() => $('casesSearch').focus(), 50);
+        };
+        window.closeCasesModal = function () { $('casesModal').classList.add('hidden'); };
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeCasesModal(); });
+
+        /* ---------- Compact year-wise report ---------- */
+        function renderYearwiseCompact() {
+            const txt = id => { const e = $(id); return e ? e.textContent : ''; };
+            $('ywConsumer').textContent = txt('printConsumerHeader');
+            $('ywConsumerNo').textContent = txt('printConsumerNo');
+            $('ywPeriod').textContent = txt('printPeriodText');
+            $('ywRef').textContent = txt('printCircularRef');
+            $('ywDate').textContent = txt('printDate');
+            $('ywRate').textContent = txt('printRateText');
+            $('ywCurBal').textContent = txt('pCurrentBalance');
+            $('ywCurFine').textContent = txt('pCurrentFine');
+            $('ywOtsBal').textContent = txt('pOTSBalance');
+            $('ywOtsFine').textContent = txt('pOTSFine');
+            $('ywBenefit').textContent = txt('pOTSBenefit');
+
+            const rate = lastMetrics ? lastMetrics.annualRate : 12;
+            const activeOnly = $('activeMonthsOnlyToggle').checked;
+            const cols = '<colgroup><col style="width:13%"><col style="width:14.5%"><col style="width:14.5%"><col style="width:14.5%"><col style="width:14.5%"><col style="width:14.5%"><col style="width:14.5%"></colgroup>';
+            $('ywGrid').innerHTML = Object.keys(globalFyMap).map(fy => {
+                const all = globalFyMap[fy];
+                const months = activeOnly ? all.filter(m => m.hasRawRecord) : all;
+                const s = globalFySummaries.find(x => x.fyLabel === fy) || { months: all.length, progressiveTotal: 0, interest: 0 };
+                const rows = months.length ? months.map(m => `<tr class="${m.hasRawRecord ? 'yw-ev' : ''}"><td>${esc(m.monthLabel)}</td><td>${formatNumber(m.ob)}</td><td>${formatNumber(m.demand)}</td><td>${formatNumber(m.surcharge)}</td><td>${formatNumber(m.adj)}</td><td>${formatNumber(m.receipt)}</td><td><strong>${formatNumber(m.cb)}</strong></td></tr>`).join('')
+                    : '<tr><td colspan="7" style="text-align:center">No billing events in this year.</td></tr>';
+                return `<div class="yw-card">
+                    <div class="yw-head"><span>FY ${esc(fy)}</span><span>${s.months} mo${s.months < 12 ? ' (part)' : ''} &middot; Prog. Sum ${formatNumber(s.progressiveTotal)}</span></div>
+                    <table class="yw-table">${cols}
+                        <thead><tr><th>Month</th><th>OB</th><th>Demand</th><th>Surchg</th><th>Add/Adj</th><th>Receipt</th><th>CB</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                        <tfoot><tr><td colspan="6" style="text-align:right">Prog. Sum ${formatNumber(s.progressiveTotal)} &times; ${esc(rate)}% &divide; 1200 = FY OTS Fine:</td><td>${formatCurrency(s.interest, false)}</td></tr></tfoot>
+                    </table>
+                </div>`;
+            }).join('');
+        }
+
+        /* Wrap printReport: existing modes run the original code untouched; 'yearwise' is the new report. */
+        const origPrint = window.printReport;
+        window.printReport = function (mode) {
+            applyReportDetails();
+            syncPayable();
+            const yw = $('printYearwiseSection');
+            if (mode !== 'yearwise') { yw.classList.add('hidden'); return origPrint(mode); }
+            if (!Object.keys(globalFyMap).length) { showToast('Calculate the OTS first.', 'error'); return; }
+            renderYearwiseCompact();
+            ['printScheduleSection', 'printLetterSection', 'printLetterMalayalamSection', 'printCompactLetterSection']
+                .forEach(id => $(id).classList.add('hidden'));
+            yw.classList.remove('hidden');
+            const pg = document.createElement('style');
+            pg.textContent = '@page { size: A4 portrait; margin: 8mm; }';
+            document.head.appendChild(pg);
+            window.print();
+            setTimeout(() => {
+                yw.classList.add('hidden');
+                $('printScheduleSection').classList.remove('hidden');
+                pg.remove();
+            }, 500);
+        };
+
+        /* Remarks belong to a case: clear them when the workspace is reset / a new case is started */
+        const prevReset = window.resetApp;
+        window.resetApp = function () {
+            prevReset();
+            const el = $('rptRemarks');
+            if (el) { el.value = ''; window.onReportDetailsInput(); }
+        };
+
+        /* ---------- Startup ---------- */
+        try { setReportDetails(JSON.parse(localStorage.getItem(REPORT_KEY) || 'null')); } catch (e) {}
+        applyReportDetails();
+        syncPayable();
     })();
     </script>
 </body>
