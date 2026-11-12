@@ -1221,14 +1221,17 @@
             renderRawTable();
             handleParamChange();
             showToast("Added new billing row.", "info");
-            // Bring the new row into view, clear of the fixed bottom navigation bar
+            // Bring the new row fully into view, clear of the fixed bottom navigation bar
             setTimeout(() => {
                 const rows = document.querySelectorAll('#rawTableBody tr');
                 const last = rows[rows.length - 1];
-                if (last) {
-                    last.style.scrollMarginBottom = '110px';
-                    last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
+                if (!last) return;
+                const wrap = last.closest('.overflow-x-auto');
+                if (wrap) wrap.scrollTop = wrap.scrollHeight;   // show it inside the table box
+                const nav = document.getElementById('wzNav');
+                const navTop = nav ? nav.getBoundingClientRect().top : window.innerHeight;
+                const overlap = last.getBoundingClientRect().bottom - (navTop - 40);
+                if (overlap > 0) window.scrollBy({ top: overlap });   // lift above the nav bar
             }, 50);
         }
 
