@@ -1230,7 +1230,7 @@
                 if (wrap) wrap.scrollTop = wrap.scrollHeight;   // show it inside the table box
                 const nav = document.getElementById('wzNav');
                 const navTop = nav ? nav.getBoundingClientRect().top : window.innerHeight;
-                const overlap = last.getBoundingClientRect().bottom - (navTop - 40);
+                const overlap = last.getBoundingClientRect().bottom - (navTop - 60);
                 if (overlap > 0) window.scrollBy({ top: overlap });   // lift above the nav bar
             }, 50);
         }
