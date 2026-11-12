@@ -1221,6 +1221,15 @@
             renderRawTable();
             handleParamChange();
             showToast("Added new billing row.", "info");
+            // Bring the new row into view, clear of the fixed bottom navigation bar
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#rawTableBody tr');
+                const last = rows[rows.length - 1];
+                if (last) {
+                    last.style.scrollMarginBottom = '110px';
+                    last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            }, 50);
         }
 
         function deleteRow(index) {
